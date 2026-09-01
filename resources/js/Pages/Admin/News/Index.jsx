@@ -1,6 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Index({ berita = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,19 +18,37 @@ export default function Index({ berita = [] }) {
         image: null,
     });
 
+    // Cleanup object URL untuk mencegah memory leak
+    useEffect(() => {
+        return () => {
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
     const handleOpenCreateModal = () => {
         setEditItem(null);
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
         setImagePreview(null);
         reset();
         clearErrors();
-        setData('_method', 'POST');
+        setData((prev) => ({ ...prev, _method: 'POST', image: null }));
         setIsModalOpen(true);
     };
 
     const handleOpenEditModal = (item) => {
         setEditItem(item);
         clearErrors();
+        
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        
         setImagePreview(item.image ? `/storage/${item.image}` : null);
+        
         setData({
             _method: 'PUT',
             title: item.title || '',
@@ -45,6 +63,9 @@ export default function Index({ berita = [] }) {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditItem(null);
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
         setImagePreview(null);
         reset();
         clearErrors();
@@ -54,6 +75,9 @@ export default function Index({ berita = [] }) {
         const file = e.target.files[0];
         if (file) {
             setData('image', file);
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
             setImagePreview(URL.createObjectURL(file));
         }
     };
@@ -61,17 +85,16 @@ export default function Index({ berita = [] }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (editItem) {
-            post(route('admin.news.update', editItem.id), {
-                forceFormData: true,
-                onSuccess: () => handleCloseModal(),
-            });
-        } else {
-            post(route('admin.news.store'), {
-                forceFormData: true,
-                onSuccess: () => handleCloseModal(),
-            });
-        }
+        // Menggunakan POST untuk KEDUA aksi (Create & Update) 
+        // karena Laravel membutuhkan POST + _method: 'PUT' untuk pengiriman FormData (file)
+        const targetRoute = editItem 
+            ? route('admin.news.update', editItem.id) 
+            : route('admin.news.store');
+
+        post(targetRoute, {
+            forceFormData: true,
+            onSuccess: () => handleCloseModal(),
+        });
     };
 
     const handleDelete = () => {

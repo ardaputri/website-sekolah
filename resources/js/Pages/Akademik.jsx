@@ -1,6 +1,7 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import { to } from '@/lib/nav';
 import { Head, Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 /* Placeholder SVG (dipakai bila gambar asli belum diunggah) */
 const ph = (label, w = 400, h = 300) =>
@@ -8,7 +9,7 @@ const ph = (label, w = 400, h = 300) =>
         `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' font-family='sans-serif' font-size='16' fill='%239ca3af' text-anchor='middle' dominant-baseline='middle'>${label}</text></svg>`,
     )}`;
 
-export default function Akademik() {
+export default function Akademik({ academics = [] }) {
     const { settings } = usePage().props;
     const siteName = settings?.site_name ?? 'SMKN 4 Bogor';
 
@@ -17,7 +18,39 @@ export default function Akademik() {
         e.currentTarget.src = ph(label, w, h);
     };
 
-    /* Konsentrasi keahlian (data contoh; nanti dinamis dari database). */
+    /* State & Data untuk Filter Jadwal Pelajaran */
+    const [kelasSelected, setKelasSelected] = useState('XII');
+    const [jurusanSelected, setJurusanSelected] = useState('PPLG');
+    const [rombelSelected, setRombelSelected] = useState('1');
+
+    const daftarTingkat = ['X', 'XI', 'XII'];
+    const daftarJurusan = [
+        { code: 'PPLG', name: 'Pengembangan Perangkat Lunak dan Gim' },
+        { code: 'TJKT', name: 'Teknik Jaringan Komputer dan Telekomunikasi' },
+        { code: 'TO', name: 'Teknik Otomotif' },
+        { code: 'TP', name: 'Teknik Pengelasan' },
+    ];
+    const daftarRombel = ['1', '2'];
+
+    /* Filtering Data Real dari Database berdasarkan Pilihan Admin/User */
+    const currentJadwal = academics.filter((item) => {
+        const itemKelas = String(item.kelas || '').trim().toUpperCase();
+        const itemJurusan = String(item.jurusan || '').trim().toUpperCase();
+        const itemRombel = String(item.rombel || '').trim();
+
+        // Mencocokkan rombel (misal format "PPLG 1" atau hanya "1")
+        const isRombelMatch =
+            itemRombel === rombelSelected ||
+            itemRombel === `${jurusanSelected} ${rombelSelected}`;
+
+        return (
+            itemKelas === kelasSelected &&
+            itemJurusan === jurusanSelected &&
+            isRombelMatch
+        );
+    });
+
+    /* Konsentrasi keahlian */
     const keahlian = [
         {
             kode: 'PPLG',
@@ -45,7 +78,7 @@ export default function Akademik() {
         },
     ];
 
-    /* Pendekatan pembelajaran. */
+    /* Pendekatan pembelajaran */
     const pendekatan = [
         {
             title: 'Teaching Factory',
@@ -77,7 +110,7 @@ export default function Akademik() {
         },
     ];
 
-    /* Alur / tahapan kegiatan akademik. */
+    /* Alur / tahapan kegiatan akademik */
     const alur = [
         { step: '01', title: 'Pembelajaran Adaptif & Normatif', desc: 'Penguatan dasar akademik, karakter, dan literasi di tahun pertama.' },
         { step: '02', title: 'Pembelajaran Produktif', desc: 'Pendalaman kompetensi keahlian sesuai konsentrasi yang dipilih.' },
@@ -117,8 +150,9 @@ export default function Akademik() {
 
                 <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {keahlian.map((k) => (
-                        <article
+                        <Link
                             key={k.kode}
+                            href={`/akademik/${k.kode}`}
                             className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
                         >
                             <div className="relative">
@@ -137,9 +171,121 @@ export default function Akademik() {
                                     {k.name}
                                 </h3>
                                 <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600">{k.desc}</p>
+                                <span className="mt-4 text-sm font-semibold text-[#1E2A5E]">
+                                    Lihat Detail →
+                                </span>
                             </div>
-                        </article>
+                        </Link>
                     ))}
+                </div>
+            </section>
+
+            {/* ===== JADWAL PELAJARAN ===== */}
+            <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                    {/* Header Jadwal */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            Jadwal Pelajaran <span className="text-[#1E2A5E]">{kelasSelected} {jurusanSelected} {rombelSelected}</span>
+                        </h2>
+                        <span className="text-xs font-bold text-gray-500">
+                            Tahun Ajaran 2026/2027
+                        </span>
+                    </div>
+                    <div className="mt-2 h-0.5 w-full bg-gray-800" />
+
+                    {/* Filter Tingkat Kelas, Jurusan, dan Rombel */}
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                            {/* Filter Tingkat (X, XI, XII) */}
+                            <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                                {daftarTingkat.map((tk) => (
+                                    <button
+                                        key={tk}
+                                        type="button"
+                                        onClick={() => setKelasSelected(tk)}
+                                        className={`rounded-md px-3 py-1 text-xs font-bold transition ${
+                                            kelasSelected === tk
+                                                ? 'bg-[#1E2A5E] text-white'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        {tk}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Filter Jurusan (PPLG, TJKT, TO, TP) */}
+                            <div className="flex flex-wrap gap-1">
+                                {daftarJurusan.map((j) => (
+                                    <button
+                                        key={j.code}
+                                        type="button"
+                                        onClick={() => setJurusanSelected(j.code)}
+                                        className={`rounded-md border px-3 py-1.5 text-xs font-bold transition ${
+                                            jurusanSelected === j.code
+                                                ? 'border-[#1E2A5E] bg-[#1E2A5E] text-white'
+                                                : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {j.code}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Filter Kelas/Rombel (1 / 2) */}
+                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-600">
+                            <span>Rombel:</span>
+                            <select
+                                value={rombelSelected}
+                                onChange={(e) => setRombelSelected(e.target.value)}
+                                className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-bold text-gray-800 outline-none focus:border-[#1E2A5E]"
+                            >
+                                {daftarRombel.map((r) => (
+                                    <option key={r} value={r}>
+                                        {jurusanSelected} {r}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Tabel Jadwal Real-time */}
+                    <div className="mt-6 overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-gray-300 text-xs font-extrabold uppercase text-gray-900">
+                                    <th className="py-3 px-3 w-36">WAKTU</th>
+                                    <th className="py-3 px-3">SENIN</th>
+                                    <th className="py-3 px-3">SELASA</th>
+                                    <th className="py-3 px-3">RABU</th>
+                                    <th className="py-3 px-3">KAMIS</th>
+                                    <th className="py-3 px-3">JUMAT</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 text-xs sm:text-sm font-medium text-gray-800">
+                                {currentJadwal.length > 0 ? (
+                                    currentJadwal.map((row) => (
+                                        <tr key={row.id} className="hover:bg-gray-50/60">
+                                            <td className="py-2.5 px-3 font-bold text-gray-900 whitespace-nowrap">{row.waktu}</td>
+                                            <td className="py-2.5 px-3">{row.senin || '-'}</td>
+                                            <td className="py-2.5 px-3">{row.selasa || '-'}</td>
+                                            <td className="py-2.5 px-3">{row.rabu || '-'}</td>
+                                            <td className="py-2.5 px-3">{row.kamis || '-'}</td>
+                                            <td className="py-2.5 px-3">{row.jumat || '-'}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="py-10 text-center text-gray-500 font-normal">
+                                            Belum ada jadwal pelajaran tersimpan untuk filter {kelasSelected} {jurusanSelected} {rombelSelected}.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 

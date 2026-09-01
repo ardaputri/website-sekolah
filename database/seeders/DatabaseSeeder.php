@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
             SiteSettingSeeder::class,
+            AcademicProgramSeeder::class,
+            ProductCategorySeeder::class,
+            KesiswaanSeeder::class,
         ]);
     }
 }

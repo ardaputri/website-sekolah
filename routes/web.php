@@ -1,60 +1,47 @@
 <?php
 
-use App\Http\Controllers\AkademikController;
+// Controller Publik
+use App\Http\Controllers\AcademicController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KesiswaanController;
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\ProdukController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Public Routes (Halaman Publik / User)
 |--------------------------------------------------------------------------
-| Halaman publik yang bisa diakses tanpa login.
 */
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
-Route::get('/akademik', [AkademikController::class, 'index'])->name('akademik.index');
+Route::get('/akademik', [AcademicController::class, 'index'])->name('akademik.index');
+Route::get('/akademik/{kode}', [AcademicController::class, 'show'])->name('akademik.show');
 Route::get('/kesiswaan', [KesiswaanController::class, 'index'])->name('kesiswaan.index');
+Route::get('/kesiswaan/{type}/{slug}', [KesiswaanController::class, 'show'])->name('kesiswaan.show');
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita.show');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
+Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Authentication Routes (Login & Auth)
 |--------------------------------------------------------------------------
-| Halaman yang membutuhkan pengguna login.
 */
+if (file_exists(__DIR__.'/auth.php')) {
+    require __DIR__.'/auth.php';
+} else {
+    Route::get('/login', fn() => inertia('Auth/Login'))->name('login');
+}
 
-Route::middleware('auth')->group(function () {
-
-    // Profil Akun Pengguna
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Grup Halaman Admin
-    Route::prefix('admin')->name('admin.')->group(function () {
-
-        // Dashboard Admin
-        Route::get('/dashboard', function () {
-            return inertia('Admin/Dashboard');
-        })->name('dashboard');
-
-        // Kelola Berita & Kegiatan
-        Route::get('/news', [BeritaController::class, 'adminIndex'])->name('news.index');
-        Route::post('/news', [BeritaController::class, 'store'])->name('news.store');
-        Route::put('/news/{news}', [BeritaController::class, 'update'])->name('news.update');
-        Route::delete('/news/{news}', [BeritaController::class, 'destroy'])->name('news.destroy');
-
-    });
-});
-
-require __DIR__.'/auth.php';
+/*
+|--------------------------------------------------------------------------
+| Admin Routes — semua di-handle oleh routes/admin.php
+|--------------------------------------------------------------------------
+| admin.php dimuat otomatis via bootstrap/app.php → Route::middleware('web')
+*/

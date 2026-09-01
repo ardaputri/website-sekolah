@@ -1,5 +1,5 @@
 import PublicLayout from '@/Layouts/PublicLayout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 /* Placeholder SVG (dipakai bila gambar asli belum diunggah) */
 const ph = (label, w = 400, h = 300) =>
@@ -7,58 +7,38 @@ const ph = (label, w = 400, h = 300) =>
         `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' font-family='sans-serif' font-size='16' fill='%239ca3af' text-anchor='middle' dominant-baseline='middle'>${label}</text></svg>`,
     )}`;
 
-export default function Kesiswaan() {
+export default function Kesiswaan({ organizations = [], extracurriculars = [] }) {
     const { settings } = usePage().props;
     const siteName = settings?.site_name ?? 'SMKN 4 Bogor';
 
-    /* Foto statis (disimpan di public/images/). Jika belum ada,
-       otomatis diganti placeholder abu-abu lewat onError. */
-    const img = {
-        hero: '/images/kesiswaan-hero.jpg',
-        galeri: [
-            '/images/kesiswaan-galeri-1.jpg',
-            '/images/kesiswaan-galeri-2.jpg',
-            '/images/kesiswaan-galeri-3.jpg',
-        ],
-    };
+    /* Fallback data statis jika DB kosong */
+    const fallbackEkskul = [
+        { id: 'f1', slug: 'pmr', name: 'PMR', description: 'Palang Merah Remaja melatih siswa dalam bidang kesehatan, pertolongan pertama, dan kepedulian sosial kepada sesama.' },
+        { id: 'f2', slug: 'pramuka', name: 'Pramuka', description: 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan serta kecintaan terhadap alam.' },
+        { id: 'f3', slug: 'rohis', name: 'Rohis', description: 'Kerohanian Islam sebagai wadah pembinaan akhlak, kegiatan keagamaan, dan penguatan nilai spiritual siswa.' },
+        { id: 'f4', slug: 'paskibra', name: 'Paskibra', description: 'Pasukan Pengibar Bendera melatih kedisiplinan, baris-berbaris, jiwa kepemimpinan, dan rasa nasionalisme.' },
+        { id: 'f5', slug: 'paduan-suara', name: 'Paduan Suara', description: 'Mengembangkan bakat olah vokal dan harmoni musik untuk tampil di berbagai kegiatan sekolah maupun lomba.' },
+        { id: 'f6', slug: 'band', name: 'Band', description: 'Wadah ekspresi musik siswa untuk mengasah kreativitas dan tampil percaya diri di berbagai acara sekolah.' },
+    ];
+
+    const fallbackOrganisasi = [
+        { id: 'fo1', slug: 'osis', name: 'OSIS', description: 'Organisasi Siswa Intra Sekolah sebagai wadah aspirasi, pengembangan diri, dan kepemimpinan siswa.' },
+        { id: 'fo2', slug: 'mpk', name: 'MPK', description: 'Majelis Perwakilan Kelas sebagai lembaga legislatif siswa yang mengawasi dan menampung aspirasi.' },
+    ];
+
+    const listEkskul = extracurriculars.length > 0 ? extracurriculars : fallbackEkskul;
+    const listOrganisasi = organizations.length > 0 ? organizations : fallbackOrganisasi;
+
     const fallbackTo = (label, w, h) => (e) => {
         e.currentTarget.onerror = null;
         e.currentTarget.src = ph(label, w, h);
     };
 
-    /* Data ekstrakurikuler (nanti bisa dijadikan dinamis dari database) */
-    const ekskul = [
-        {
-            name: 'PMR',
-            desc: 'Palang Merah Remaja melatih siswa dalam bidang kesehatan, pertolongan pertama, dan kepedulian sosial kepada sesama.',
-        },
-        {
-            name: 'Pramuka',
-            desc: 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan serta kecintaan terhadap alam.',
-        },
-        {
-            name: 'Rohis',
-            desc: 'Kerohanian Islam sebagai wadah pembinaan akhlak, kegiatan keagamaan, dan penguatan nilai spiritual siswa.',
-        },
-        {
-            name: 'Paskibra',
-            desc: 'Pasukan Pengibar Bendera melatih kedisiplinan, baris-berbaris, jiwa kepemimpinan, dan rasa nasionalisme.',
-        },
-        {
-            name: 'Paduan Suara',
-            desc: 'Mengembangkan bakat olah vokal dan harmoni musik untuk tampil di berbagai kegiatan sekolah maupun lomba.',
-        },
-        {
-            name: 'Band',
-            desc: 'Wadah ekspresi musik siswa untuk mengasah kreativitas dan tampil percaya diri di berbagai acara sekolah.',
-        },
-    ];
-
-    /* Statistik capaian (angka contoh, bisa diganti data nyata) */
+    /* Statistik capaian */
     const capaian = [
-        { value: '1.2K', label: 'Siswa Aktif' },
-        { value: '6', label: 'Eskul' },
-        { value: '100+', label: 'Prestasi' },
+        { value: settings?.stat_students || '1.2K', label: 'Siswa Aktif' },
+        { value: String(listEkskul.length || 6), label: 'Eskul' },
+        { value: settings?.stat_achievements || '100+', label: 'Prestasi' },
         { value: '92%', label: 'Partisipasi' },
     ];
 
@@ -85,7 +65,7 @@ export default function Kesiswaan() {
                         </div>
                         <div>
                             <img
-                                src={img.hero}
+                                src="/images/kesiswaan-hero.jpg"
                                 onError={fallbackTo('Foto Kesiswaan', 800, 600)}
                                 alt="Kegiatan kesiswaan"
                                 className="h-64 w-full rounded-2xl object-cover shadow-lg md:h-72"
@@ -95,26 +75,89 @@ export default function Kesiswaan() {
                 </div>
             </section>
 
-            {/* ===== ORGANISASI & EKSTRAKURIKULER ===== */}
+            {/* ===== ORGANISASI ===== */}
+            {listOrganisasi.length > 0 && (
+                <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">Organisasi Siswa</h2>
+                        <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-yellow-400" />
+                        <p className="mx-auto mt-3 max-w-2xl text-gray-500">
+                            Wadah aspirasi, kepemimpinan, dan pengembangan diri siswa di lingkungan sekolah.
+                        </p>
+                    </div>
+
+                    <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                        {listOrganisasi.map((o) => (
+                            <Link
+                                key={o.id}
+                                href={`/kesiswaan/organisasi/${o.slug}`}
+                                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:shadow-md"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                                        {o.image ? (
+                                            <img src={o.image.startsWith('http') || o.image.startsWith('/images/') ? o.image : `/storage/${o.image}`} alt={o.name} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-lg font-bold text-[#1E2A5E]">{o.name?.charAt(0)}</div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold text-[#1E2A5E] group-hover:text-yellow-600">{o.name}</h3>
+                                        {o.period && <p className="text-[10px] text-gray-400">Periode: {o.period}</p>}
+                                        <p className="mt-2 text-sm leading-relaxed text-gray-600 line-clamp-2">{o.description}</p>
+                                        <span className="mt-3 inline-block text-sm font-semibold text-[#1E2A5E] group-hover:text-yellow-600">
+                                            Lihat Detail →
+                                        </span>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* ===== EKSTRAKURIKULER ===== */}
             <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-900">Organisasi &amp; Ekstrakurikuler</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">Ekstrakurikuler</h2>
                     <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-yellow-400" />
                     <p className="mx-auto mt-3 max-w-2xl text-gray-500">
                         Wadah pengembangan minat, bakat, dan karakter siswa di luar jam pelajaran formal.
                     </p>
                 </div>
 
-                <div className="mt-10 grid gap-6 md:grid-cols-2">
-                    {ekskul.map((e) => (
-                        <div
-                            key={e.name}
-                            className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition hover:shadow-md"
+                <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {listEkskul.map((e) => (
+                        <Link
+                            key={e.id}
+                            href={`/kesiswaan/ekskul/${e.slug}`}
+                            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
                         >
-                            <h3 className="text-lg font-bold text-[#1E2A5E]">{e.name}</h3>
-                            <div className="mx-auto mt-2 h-0.5 w-10 rounded-full bg-yellow-400" />
-                            <p className="mt-3 text-sm leading-relaxed text-gray-600">{e.desc}</p>
-                        </div>
+                            <div className="h-40 overflow-hidden bg-gray-100">
+                                {e.image ? (
+                                    <img
+                                        src={e.image.startsWith('http') || e.image.startsWith('/images/') ? e.image : `/storage/${e.image}`}
+                                        onError={fallbackTo(e.name, 640, 400)}
+                                        alt={e.name}
+                                        className="h-full w-full object-cover transition group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-300">
+                                        {e.name?.charAt(0)}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-5">
+                                <h3 className="text-lg font-bold text-[#1E2A5E] group-hover:text-yellow-600">{e.name}</h3>
+                                <div className="mx-auto mt-2 h-0.5 w-10 rounded-full bg-yellow-400" />
+                                <p className="mt-3 text-sm leading-relaxed text-gray-600 line-clamp-2">
+                                    {e.description}
+                                </p>
+                                <span className="mt-3 inline-block text-sm font-semibold text-[#1E2A5E] group-hover:text-yellow-600">
+                                    Lihat Detail →
+                                </span>
+                            </div>
+                        </Link>
                     ))}
                 </div>
             </section>
@@ -145,7 +188,7 @@ export default function Kesiswaan() {
                 <h2 className="text-center text-2xl font-bold text-gray-900">Galeri Aktivitas</h2>
                 <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-yellow-400" />
                 <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {img.galeri.map((src, i) => (
+                    {['/images/kesiswaan-galeri-1.jpg', '/images/kesiswaan-galeri-2.jpg', '/images/kesiswaan-galeri-3.jpg'].map((src, i) => (
                         <img
                             key={i}
                             src={src}

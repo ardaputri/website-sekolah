@@ -22,6 +22,31 @@ class BeritaController extends Controller
         ]);
     }
 
+    // --- METHOD UNTUK HALAMAN DETAIL BERITA ---
+    public function show($slug)
+    {
+        $berita = News::with('author')
+            ->where('slug', $slug)
+            ->where('status', 'PUBLISHED')
+            ->firstOrFail();
+
+        // Increment views
+        $berita->increment('views');
+
+        // Ambil 3 berita lainnya untuk section 'Berita Lainnya'
+        $beritaLain = News::with('author')
+            ->where('status', 'PUBLISHED')
+            ->where('id', '!=', $berita->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return Inertia::render('Berita/Show', [
+            'berita' => $berita,
+            'beritaLain' => $beritaLain,
+        ]);
+    }
+
     // --- METHOD UNTUK HALAMAN ADMIN ---
     public function adminIndex()
     {

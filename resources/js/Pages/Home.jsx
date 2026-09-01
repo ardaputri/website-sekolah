@@ -66,6 +66,21 @@ export default function Home() {
         },
     ];
 
+    /* ── KOMPETENSI KEAHLIAN (Ringkasan Card untuk Beranda) ── */
+    const keahlianRingkas = [
+        { code: 'PPLG', name: 'Pengembangan Perangkat Lunak dan Gim', desc: 'Pemrograman web, mobile, dan gim', image: '/images/akademik-pplg.jpg' },
+        { code: 'TJKT', name: 'Teknik Jaringan Komputer dan Telekomunikasi', desc: 'Jaringan, server, dan keamanan siber', image: '/images/akademik-tjkt.jpg' },
+        { code: 'TO', name: 'Teknik Otomotif', desc: 'Perawatan & perbaikan kendaraan bermotor', image: '/images/akademik-to.jpg' },
+        { code: 'TP', name: 'Teknik Pengelasan', desc: 'Pengelasan, fabrikasi, dan konstruksi baja', image: '/images/akademik-tp.jpg' },
+    ];
+
+    /* ── EKSTRAKURIKULER HIGHLIGHT ── */
+    const ekskulHighlight = [
+        { name: 'Pramuka', desc: 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan.', image: '/images/ekskul-pramuka.jpg' },
+        { name: 'Paskibra', desc: 'Pasukan Pengibar Bendera melatih kedisiplinan, baris-berbaris, dan rasa nasionalisme.', image: '/images/ekskul-paskibra.jpg' },
+        { name: 'PMR', desc: 'Palang Merah Remaja melatih siswa dalam bidang kesehatan dan kepedulian sosial.', image: '/images/ekskul-pmr.jpg' },
+    ];
+
     /* ── DATA ALUMNI ── */
     const alumni = [
         {
@@ -289,6 +304,105 @@ export default function Home() {
                             </div>
                         </div>
                     ))}
+                </div>
+            </section>
+
+            {/* ===== RINGKASAN KOMPETENSI KEAHLIAN ===== */}
+            <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">Konsentrasi Keahlian</h2>
+                    <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-yellow-400" />
+                    <p className="mx-auto mt-3 max-w-2xl text-gray-500">
+                        Pilih bidang keahlian sesuai minat dan bakatmu untuk masa depan yang cerah.
+                    </p>
+                </div>
+
+                <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    {keahlianRingkas.map((k) => (
+                        <Link
+                            key={k.code}
+                            href={`/akademik/${k.code}`}
+                            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
+                        >
+                            <div className="relative h-36 overflow-hidden">
+                                <img
+                                    src={k.image}
+                                    onError={fallbackTo(k.code, 640, 300)}
+                                    alt={k.name}
+                                    className="h-full w-full object-cover transition group-hover:scale-105"
+                                />
+                                <span className="absolute left-3 top-3 rounded-full bg-yellow-400 px-2.5 py-0.5 text-[10px] font-bold text-[#1E2A5E]">
+                                    {k.code}
+                                </span>
+                            </div>
+                            <div className="p-4">
+                                <h3 className="text-sm font-bold text-gray-900 group-hover:text-[#1E2A5E] leading-snug">
+                                    {k.name}
+                                </h3>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    {k.desc}
+                                </p>
+                                <span className="mt-3 inline-block text-xs font-semibold text-[#1E2A5E]">
+                                    Selengkapnya →
+                                </span>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+
+                <div className="mt-8 text-center">
+                    <Link
+                        href={to('akademik.index') ?? '#'}
+                        className="inline-block rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-semibold text-[#1E2A5E] transition hover:bg-gray-50"
+                    >
+                        Lihat Semua Program Keahlian
+                    </Link>
+                </div>
+            </section>
+
+            {/* ===== HIGHLIGHT EKSTRAKURIKULER ===== */}
+            <section className="bg-gray-50 py-16">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">Kegiatan Ekstrakurikuler</h2>
+                        <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-yellow-400" />
+                        <p className="mx-auto mt-3 max-w-2xl text-gray-500">
+                            Wadah pengembangan minat, bakat, dan karakter siswa di luar jam pelajaran formal.
+                        </p>
+                    </div>
+
+                    <div className="mt-10 grid gap-6 md:grid-cols-3">
+                        {ekskulHighlight.map((e, i) => (
+                            <div
+                                key={i}
+                                className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
+                            >
+                                <div className="h-44 overflow-hidden">
+                                    <img
+                                        src={e.image}
+                                        onError={fallbackTo(e.name, 640, 400)}
+                                        alt={e.name}
+                                        className="h-full w-full object-cover transition group-hover:scale-105"
+                                    />
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="font-bold text-gray-900 group-hover:text-[#1E2A5E]">{e.name}</h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-gray-600 line-clamp-2">
+                                        {e.desc}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-8 text-center">
+                        <Link
+                            href={to('kesiswaan.index') ?? '#'}
+                            className="inline-block rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-semibold text-[#1E2A5E] transition hover:bg-gray-50"
+                        >
+                            Lihat Semua Kegiatan Kesiswaan
+                        </Link>
+                    </div>
                 </div>
             </section>
 

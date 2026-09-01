@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openai/justwoker/claude-opus-4-8",
+  "permission": {
+    "read": "allow",
+    "write": "allow",
+    "bash": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "edit": "allow"
+  },
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": "http://localhost:20128/v1",
+        "apiKey": "sk-564b0947652c1588-8ejydu-1fcf462d"
+      },
+      "models": {
+        "justwoker/claude-opus-4-8": {
+          "name": "Claude Opus 4.8 (Justwoker)",
+          "modelID": "justwoker/claude-opus-4-8"
+        }
+      }
+    }
+  }
+}

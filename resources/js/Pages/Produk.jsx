@@ -10,6 +10,7 @@ const ph = (label, w = 400, h = 300) =>
     )}`;
 
 const KATEGORI = ['Semua', 'Proyek Siswa', 'Produk digital'];
+const KEAHLIAN = ['Semua', 'PPLG', 'TJKT', 'TO', 'TP'];
 
 export default function Produk() {
     const { settings } = usePage().props;
@@ -21,30 +22,35 @@ export default function Produk() {
     };
 
     /* Data contoh (nanti diganti data nyata dari database saat CRUD Produk). */
-    const semuaProduk = Array.from({ length: 9 }, (_, i) => ({
-        title: 'Pembuat Web',
-        desc: 'Website berbagi inovasi web yang dirancang dan dikembangkan oleh siswa sebagai wujud kreativitas, keterampilan, dan penerapan teknologi dalam menciptakan solusi digital yang bermanfaat.',
-        kategori: i % 2 === 0 ? 'Proyek Siswa' : 'Produk digital',
-        maker: ['Kelas XII PPLG', 'Kelas XI PPLG', 'Kelas X PPLG'][i % 3],
-        status: 'Tersedia',
-        image: `/images/produk-${i + 1}.jpg`,
-    }));
+    const semuaProduk = [
+        { id: 1, title: 'Website Portfolio Siswa', desc: 'Website portofolio personal yang dirancang dan dikembangkan oleh siswa PPLG sebagai wujud kreativitas dan penerapan teknologi web modern.', kategori: 'Proyek Siswa', maker: 'Kelas XII PPLG', status: 'Tersedia', image: '/images/produk-1.jpg', kompetensi: 'PPLG' },
+        { id: 2, title: 'Aplikasi Manajemen Inventaris', desc: 'Aplikasi berbasis web untuk manajemen inventaris sekolah yang memudahkan pengelolaan data barang dan pelacakan stok secara real-time.', kategori: 'Produk digital', maker: 'Kelas XI PPLG', status: 'Tersedia', image: '/images/produk-2.jpg', kompetensi: 'PPLG' },
+        { id: 3, title: 'Miniatur Jaringan Komputer', desc: 'Model skala kecil infrastruktur jaringan komputer yang menampilkan topologi jaringan, perangkat aktif, dan kabelisasi struktural.', kategori: 'Proyek Siswa', maker: 'Kelas XII TJKT', status: 'Tersedia', image: '/images/produk-3.jpg', kompetensi: 'TJKT' },
+        { id: 4, title: 'Sistem Informasi Akademik', desc: 'Platform digital pengelolaan data akademik siswa termasuk nilai, jadwal, dan absensi dengan antarmuka yang mudah digunakan.', kategori: 'Produk digital', maker: 'Kelas XI PPLG', status: 'Tersedia', image: '/images/produk-4.jpg', kompetensi: 'PPLG' },
+        { id: 5, title: 'Service Kit Otomotif Custom', desc: 'Peralatan servis kendaraan yang dirancang dan dirakit oleh siswa Teknik Otomotif untuk keperluan bengkel produksi sekolah.', kategori: 'Proyek Siswa', maker: 'Kelas XII TO', status: 'Segera Hadir', image: '/images/produk-5.jpg', kompetensi: 'TO' },
+        { id: 6, title: 'Mobile App E-Library', desc: 'Aplikasi mobile perpustakaan digital yang memungkinkan siswa meminjam dan membaca buku secara online.', kategori: 'Produk digital', maker: 'Kelas X PPLG', status: 'Tersedia', image: '/images/produk-6.jpg', kompetensi: 'PPLG' },
+        { id: 7, title: 'Rak Server Mini', desc: 'Rak server mini hasil fabrikasi siswa Teknik Pengelasan, dirancang untuk kebutuhan laboratorium jaringan.', kategori: 'Proyek Siswa', maker: 'Kelas XII TP', status: 'Tersedia', image: '/images/produk-7.jpg', kompetensi: 'TP' },
+        { id: 8, title: 'Dashboard Monitoring Jaringan', desc: 'Panel kontrol berbasis web untuk memonitor status dan kesehatan jaringan komputer secara real-time.', kategori: 'Produk digital', maker: 'Kelas XII TJKT', status: 'Tersedia', image: '/images/produk-8.jpg', kompetensi: 'TJKT' },
+        { id: 9, title: 'Karya Las Ornament Dekoratif', desc: 'Produk kerajinan logam las dekoratif berupa railing, teralis, dan ornamen yang dihasilkan dari bengkel produksi sekolah.', kategori: 'Proyek Siswa', maker: 'Kelas XII TP', status: 'Tersedia', image: '/images/produk-9.jpg', kompetensi: 'TP' },
+    ];
 
     const [kategori, setKategori] = useState('Semua');
+    const [kompetensi, setKompetensi] = useState('Semua');
     const [cari, setCari] = useState('');
 
     const hasil = useMemo(() => {
         const q = cari.trim().toLowerCase();
         return semuaProduk.filter((p) => {
             const cocokKategori = kategori === 'Semua' || p.kategori === kategori;
+            const cocokKompetensi = kompetensi === 'Semua' || p.kompetensi === kompetensi;
             const cocokCari =
                 q === '' ||
                 p.title.toLowerCase().includes(q) ||
                 p.desc.toLowerCase().includes(q);
-            return cocokKategori && cocokCari;
+            return cocokKategori && cocokKompetensi && cocokCari;
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [kategori, cari]);
+    }, [kategori, kompetensi, cari]);
 
     return (
         <PublicLayout>
@@ -98,21 +104,41 @@ export default function Produk() {
                         />
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        {KATEGORI.map((k) => (
-                            <button
-                                key={k}
-                                onClick={() => setKategori(k)}
-                                className={
-                                    'rounded-lg px-4 py-2 text-sm font-semibold transition ' +
-                                    (kategori === k
-                                        ? 'bg-[#1E2A5E] text-white shadow'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200')
-                                }
-                            >
-                                {k}
-                            </button>
-                        ))}
+                    <div className="flex flex-wrap gap-4">
+                        {/* Filter Kategori */}
+                        <div className="flex flex-wrap gap-2">
+                            {KATEGORI.map((k) => (
+                                <button
+                                    key={k}
+                                    onClick={() => setKategori(k)}
+                                    className={
+                                        'rounded-lg px-4 py-2 text-sm font-semibold transition ' +
+                                        (kategori === k
+                                            ? 'bg-[#1E2A5E] text-white shadow'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200')
+                                    }
+                                >
+                                    {k}
+                                </button>
+                            ))}
+                        </div>
+                        {/* Filter Kompetensi Keahlian */}
+                        <div className="flex flex-wrap gap-2">
+                            {KEAHLIAN.map((k) => (
+                                <button
+                                    key={k}
+                                    onClick={() => setKompetensi(k)}
+                                    className={
+                                        'rounded-lg px-3 py-1.5 text-xs font-semibold transition ' +
+                                        (kompetensi === k
+                                            ? 'bg-yellow-400 text-[#1E2A5E] shadow'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200')
+                                    }
+                                >
+                                    {k}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -153,7 +179,7 @@ export default function Produk() {
                                     </div>
 
                                     <a
-                                        href={to('produk.index') ?? '#'}
+                                        href={`/produk/${p.id}`}
                                         className="mt-4 block rounded-lg border border-gray-200 py-2 text-center text-sm font-semibold text-[#1E2A5E] transition hover:bg-gray-50"
                                     >
                                         Lihat Detail →

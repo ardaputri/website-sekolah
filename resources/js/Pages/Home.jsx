@@ -15,7 +15,7 @@ const ph = (label, w = 400, h = 300) =>
     )}`;
 
 export default function Home() {
-    const { settings, auth } = usePage().props;
+    const { settings, auth, ekskulHighlightDB } = usePage().props;
     const siteName = settings?.site_name ?? 'SMKN 4 Bogor';
     const user = auth?.user ?? null;
     const loginHref = route('login');
@@ -75,11 +75,12 @@ export default function Home() {
     ];
 
     /* ── EKSTRAKURIKULER HIGHLIGHT ── */
-    const ekskulHighlight = [
-        { name: 'Pramuka', desc: 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan.', image: '/images/ekskul-pramuka.jpg' },
-        { name: 'Paskibra', desc: 'Pasukan Pengibar Bendera melatih kedisiplinan, baris-berbaris, dan rasa nasionalisme.', image: '/images/ekskul-paskibra.jpg' },
-        { name: 'PMR', desc: 'Palang Merah Remaja melatih siswa dalam bidang kesehatan dan kepedulian sosial.', image: '/images/ekskul-pmr.jpg' },
+    const ekskulFallback = [
+        { name: 'Pramuka', desc: 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan.', image: '/images/kesiswaan-galeri-1.jpg' },
+        { name: 'Paskibra', desc: 'Pasukan Pengibar Bendera melatih kedisiplinan, baris-berbaris, dan rasa nasionalisme.', image: '/images/kesiswaan-galeri-2.jpg' },
+        { name: 'PMR', desc: 'Palang Merah Remaja melatih siswa dalam bidang kesehatan dan kepedulian sosial.', image: '/images/kesiswaan-galeri-3.jpg' },
     ];
+    const ekskulHighlight = (ekskulHighlightDB && ekskulHighlightDB.length > 0) ? ekskulHighlightDB : ekskulFallback;
 
     /* ── DATA ALUMNI ── */
     const alumni = [
@@ -373,25 +374,33 @@ export default function Home() {
 
                     <div className="mt-10 grid gap-6 md:grid-cols-3">
                         {ekskulHighlight.map((e, i) => (
-                            <div
+                            <Link
                                 key={i}
+                                href={e.slug ? (to('kesiswaan.show', { type: 'ekskul', slug: e.slug }) ?? '#') : (to('kesiswaan.index') ?? '#')}
                                 className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
                             >
                                 <div className="h-44 overflow-hidden">
-                                    <img
-                                        src={e.image}
-                                        onError={fallbackTo(e.name, 640, 400)}
-                                        alt={e.name}
-                                        className="h-full w-full object-cover transition group-hover:scale-105"
-                                    />
+                                    {e.image ? (
+                                        <img
+                                            src={e.image}
+                                            onError={fallbackTo(e.name, 640, 400)}
+                                            alt={e.name}
+                                            className="h-full w-full object-cover transition group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1E2A5E]/10 to-[#1E2A5E]/5">
+                                            <span className="text-4xl font-bold text-[#1E2A5E]/20">{e.name?.charAt(0)}</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="p-5">
                                     <h3 className="font-bold text-gray-900 group-hover:text-[#1E2A5E]">{e.name}</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-gray-600 line-clamp-2">
                                         {e.desc}
                                     </p>
+                                    <span className="mt-3 inline-block text-sm font-semibold text-[#1E2A5E]">Lihat Detail →</span>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
 

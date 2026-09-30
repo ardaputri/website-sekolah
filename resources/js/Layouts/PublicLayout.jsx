@@ -68,19 +68,12 @@ export default function PublicLayout({ children }) {
                             </Link>
                         ))}
 
-                        {user ? (
+                        {user && (
                             <Link
                                 href={dashboardHref}
                                 className="ml-2 rounded-lg bg-[#1E2A5E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#18224d]"
                             >
                                 Dashboard
-                            </Link>
-                        ) : (
-                            <Link
-                                href={route('login')}
-                                className="ml-2 rounded-lg bg-[#1E2A5E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#18224d]"
-                            >
-                                Masuk
                             </Link>
                         )}
                     </div>
@@ -125,19 +118,12 @@ export default function PublicLayout({ children }) {
                                 </Link>
                             ))}
 
-                            {user ? (
+                            {user && (
                                 <Link
                                     href={dashboardHref}
                                     className="block rounded-lg bg-[#1E2A5E] px-3 py-2 text-center text-base font-semibold text-white"
                                 >
                                     Dashboard
-                                </Link>
-                            ) : (
-                                <Link
-                                    href={route('login')}
-                                    className="block rounded-lg bg-[#1E2A5E] px-3 py-2 text-center text-base font-semibold text-white"
-                                >
-                                    Masuk
                                 </Link>
                             )}
                         </div>

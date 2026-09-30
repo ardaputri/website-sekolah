@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\KesiswaanController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\AcademicController as AdminAcademicController;
+use App\Http\Controllers\Admin\AcademicProgramController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,12 @@ Route::prefix('admin')
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+        // ── Kompetensi Keahlian ──
+        Route::get('/academic-programs', [AcademicProgramController::class, 'index'])->name('academic-programs.index');
+        Route::post('/academic-programs', [AcademicProgramController::class, 'store'])->name('academic-programs.store');
+        Route::put('/academic-programs/{academicProgram}', [AcademicProgramController::class, 'update'])->name('academic-programs.update');
+        Route::delete('/academic-programs/{academicProgram}', [AcademicProgramController::class, 'destroy'])->name('academic-programs.destroy');
 
         // ── Tenaga Pendidik ──
         Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');

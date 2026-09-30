@@ -20,13 +20,11 @@ export default function AdminLayout({ header, children }) {
         { label: 'Dashboard', route: 'admin.dashboard', url: '/admin/dashboard', perm: null, icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
         { label: 'Berita', route: 'admin.news.index', url: '/admin/news', perm: null, icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
         { label: 'Akademik', route: 'admin.academic.index', url: '/admin/academic', perm: null, icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
+        { label: 'Keahlian', route: 'admin.academic-programs.index', url: '/admin/academic-programs', perm: null, icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
         { label: 'Organisasi', route: 'admin.kesiswaan.organization.index', url: '/admin/kesiswaan/organizations', perm: 'kesiswaan.manage', icon: 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 100-8 4 4 0 000 8z' },
         { label: 'Ekstrakurikuler', route: 'admin.kesiswaan.extracurricular.index', url: '/admin/kesiswaan/extracurriculars', perm: 'kesiswaan.manage', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
         { label: 'Produk', route: 'admin.products.index', url: '/admin/products', perm: 'product.manage', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-        { label: 'Guru', route: 'admin.teachers.index', url: '/admin/teachers', perm: 'academic.manage', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
         { label: 'Pesan Masuk', route: 'admin.messages.index', url: '/admin/messages', perm: 'message.manage', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-        { label: 'Pengaturan', route: 'admin.settings.edit', url: '/admin/settings', perm: 'settings.manage', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
-        { label: 'Pengguna', route: 'admin.users.index', url: '/admin/users', perm: 'user.manage', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     ];
 
     // Filter menu berdasarkan permission
@@ -42,8 +40,9 @@ export default function AdminLayout({ header, children }) {
             targetHref = item.url;
         }
 
-        // Pengecekan status aktif berdasarkan path URL browser saat ini
-        const active = window.location.pathname.startsWith(item.url);
+        // Pengecekan status aktif — exact match atau child path (tidak match prefix yang tumpang tindih)
+        const pathname = window.location.pathname;
+        const active = pathname === item.url || (pathname.startsWith(item.url + '/') && pathname.split('/')[3] === item.url.split('/')[2]);
 
         const classes = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ';
 
@@ -75,11 +74,12 @@ export default function AdminLayout({ header, children }) {
                     (sidebarOpen ? 'translate-x-0' : '-translate-x-full')
                 }
             >
-                <div className="flex h-16 items-center gap-2 border-b border-gray-800 px-6">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 font-bold text-white">
-                        A
-                    </span>
-                    <span className="font-semibold text-white">Panel Admin</span>
+                <div className="flex h-16 items-center gap-3 border-b border-gray-800 px-5">
+                    <img src="/images/logo-smkn4.png" alt="Logo SMKN 4" className="h-10 w-10 rounded-lg object-contain bg-white p-0.5" />
+                    <div className="flex flex-col">
+                        <span className="text-sm font-bold text-white leading-tight">Super Admin</span>
+                        <span className="text-[11px] font-medium text-indigo-300 leading-tight">SMKN 4 Bogor</span>
+                    </div>
                 </div>
                 <nav className="flex-1 space-y-1 overflow-y-auto p-4">
                     {visibleMenu.map((item) => (
@@ -114,7 +114,7 @@ export default function AdminLayout({ header, children }) {
             {/* ===== Konten utama ===== */}
             <div className="lg:pl-64">
                 {/* Topbar */}
-                <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
+                <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
@@ -125,24 +125,28 @@ export default function AdminLayout({ header, children }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <div className="text-lg font-semibold text-gray-800">
-                            {header ?? 'Dashboard'}
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-lg font-bold text-gray-800">{header ?? 'Dashboard'}</h1>
                         </div>
                     </div>
 
                     <Dropdown>
                         <Dropdown.Trigger>
-                            <button className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-                                <span className="grid h-8 w-8 place-items-center rounded-full bg-indigo-100 font-semibold text-indigo-700">
+                            <button className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                                <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 font-bold text-white shadow-sm">
                                     {user?.name?.charAt(0) ?? 'U'}
                                 </span>
-                                <span className="hidden sm:block">{user?.name}</span>
+                                <div className="hidden sm:flex flex-col items-start">
+                                    <span className="text-sm font-semibold text-gray-800 leading-tight">{user?.name}</span>
+                                    <span className="text-xs text-gray-500 leading-tight">{user?.roles?.join(', ') ?? 'Admin'}</span>
+                                </div>
+                                <svg className="hidden sm:block h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                         </Dropdown.Trigger>
                         <Dropdown.Content>
-                            <div className="border-b border-gray-100 px-4 py-2">
-                                <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-                                <div className="text-xs text-gray-500">{user?.roles?.join(', ')}</div>
+                            <div className="border-b border-gray-100 px-4 py-3">
+                                <div className="text-sm font-semibold text-gray-900">{user?.name}</div>
+                                <div className="text-xs text-gray-500">{user?.roles?.join(', ') ?? 'Admin'}</div>
                             </div>
                             <Dropdown.Link href={typeof route === 'function' && hasRoute('profile.edit') ? route('profile.edit') : '/profile'}>Profil</Dropdown.Link>
                             <Dropdown.Link href={typeof route === 'function' && hasRoute('logout') ? route('logout') : '/logout'} method="post" as="button">

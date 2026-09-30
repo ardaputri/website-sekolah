@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             AcademicProgramSeeder::class,
             ProductCategorySeeder::class,
             KesiswaanSeeder::class,
+            AcademicScheduleSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

@@ -7,6 +7,18 @@ const ph = (label, w = 400, h = 300) =>
         `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' font-family='sans-serif' font-size='16' fill='%239ca3af' text-anchor='middle' dominant-baseline='middle'>${label}</text></svg>`,
     )}`;
 
+const statusLabel = {
+    available: 'Tersedia',
+    coming_soon: 'Segera Hadir',
+    sold_out: 'Terjual',
+};
+
+const statusColor = {
+    available: 'bg-emerald-100 text-emerald-700',
+    coming_soon: 'bg-yellow-100 text-yellow-700',
+    sold_out: 'bg-red-100 text-red-700',
+};
+
 export default function ProdukShow({ produk, produkLain = [] }) {
     const { settings } = usePage().props;
     const siteName = settings?.site_name ?? 'SMKN 4 Bogor';
@@ -37,11 +49,8 @@ export default function ProdukShow({ produk, produkLain = [] }) {
         return `/storage/${img}`;
     };
 
-    const statusColor = {
-        Tersedia: 'bg-emerald-100 text-emerald-700',
-        'Segera Hadir': 'bg-yellow-100 text-yellow-700',
-        Terjual: 'bg-red-100 text-red-700',
-    };
+    const displayStatus = statusLabel[produk.status] || produk.status || 'Tersedia';
+    const displayStatusColor = statusColor[produk.status] || 'bg-gray-200 text-gray-700';
 
     /* Galeri foto produk — gunakan array images atau fallback ke image tunggal */
     const gallery = produk.images?.length > 0
@@ -53,7 +62,7 @@ export default function ProdukShow({ produk, produkLain = [] }) {
 
     return (
         <PublicLayout>
-            <Head title={`${produk.name || produk.title} — ${siteName}`} />
+            <Head title={`${produk.name} — ${siteName}`} />
 
             {/* ===== HERO ===== */}
             <section className="bg-[#1E2A5E]">
@@ -66,8 +75,8 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                     </Link>
                     <div className="mt-4">
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusColor[produk.status] ?? 'bg-gray-200 text-gray-700'}`}>
-                                {produk.status || 'Tersedia'}
+                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${displayStatusColor}`}>
+                                {displayStatus}
                             </span>
                             {produk.category && (
                                 <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/20">
@@ -76,7 +85,7 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                             )}
                         </div>
                         <h1 className="mt-3 max-w-4xl text-2xl font-extrabold leading-tight text-white sm:text-3xl lg:text-4xl">
-                            {produk.name || produk.title}
+                            {produk.name}
                         </h1>
                         {produk.maker && (
                             <p className="mt-3 text-sm text-indigo-200">
@@ -92,16 +101,14 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                 <div className="grid gap-10 lg:grid-cols-5">
                     {/* Kolom Kiri: Galeri */}
                     <div className="lg:col-span-3">
-                        {/* Gambar Utama */}
                         <div className="overflow-hidden rounded-2xl">
                             <img
                                 src={getImageUrl(gallery[0])}
                                 onError={fallbackTo('Produk', 800, 600)}
-                                alt={produk.name || produk.title}
+                                alt={produk.name}
                                 className="h-auto w-full object-cover"
                             />
                         </div>
-                        {/* Thumbnail Galeri */}
                         {gallery.length > 1 && (
                             <div className="mt-4 grid grid-cols-4 gap-3">
                                 {gallery.map((img, i) => (
@@ -126,8 +133,8 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                                 {/* Status */}
                                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                                     <span className="text-gray-500">Status</span>
-                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${statusColor[produk.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                                        {produk.status || 'Tersedia'}
+                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${displayStatusColor}`}>
+                                        {displayStatus}
                                     </span>
                                 </div>
 
@@ -170,7 +177,7 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                             <div className="mt-6">
                                 <h3 className="text-sm font-bold text-gray-900">Deskripsi</h3>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                                    {produk.description || produk.desc}
+                                    {produk.description || produk.short_description || ''}
                                 </p>
                             </div>
 
@@ -178,7 +185,7 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                             <div className="mt-6 space-y-3">
                                 {whatsapp && (
                                     <a
-                                        href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Halo, saya tertarik dengan produk "${produk.name || produk.title}". Apakah masih tersedia?`)}`}
+                                        href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Halo, saya tertarik dengan produk "${produk.name}". Apakah masih tersedia?`)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 rounded-lg bg-green-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-600"
@@ -190,7 +197,7 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                                     </a>
                                 )}
                                 <a
-                                    href={`mailto:${email}?subject=${encodeURIComponent(`Pemesanan: ${produk.name || produk.title}`)}&body=${encodeURIComponent(`Halo, saya tertarik dengan produk "${produk.name || produk.title}".\n\nMohon informasi lebih lanjut.\n\nTerima kasih.`)}`}
+                                    href={`mailto:${email}?subject=${encodeURIComponent(`Pemesanan: ${produk.name}`)}&body=${encodeURIComponent(`Halo, saya tertarik dengan produk "${produk.name}".\n\nMohon informasi lebih lanjut.\n\nTerima kasih.`)}`}
                                     className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-6 py-3 text-sm font-semibold text-[#1E2A5E] transition hover:bg-gray-50"
                                 >
                                     <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -218,18 +225,18 @@ export default function ProdukShow({ produk, produkLain = [] }) {
                                         <img
                                             src={getImageUrl(item.image)}
                                             onError={fallbackTo('Produk', 640, 400)}
-                                            alt={item.name || item.title}
+                                            alt={item.name}
                                             className="h-full w-full object-cover"
                                         />
                                     </div>
                                     <div className="flex flex-1 flex-col p-4">
                                         <h3 className="text-sm font-bold leading-snug text-gray-900 group-hover:text-[#1E2A5E] line-clamp-2">
-                                            {item.name || item.title}
+                                            {item.name}
                                         </h3>
                                         <div className="mt-2 flex items-center justify-between">
-                                            <span className="text-xs text-gray-500">{item.maker}</span>
-                                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor[item.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                                                {item.status || 'Tersedia'}
+                                            <span className="text-xs text-gray-500">{item.maker || ''}</span>
+                                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor[item.status] || 'bg-gray-100 text-gray-600'}`}>
+                                                {statusLabel[item.status] || item.status || 'Tersedia'}
                                             </span>
                                         </div>
                                     </div>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\AcademicProgram;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -9,65 +12,105 @@ use Inertia\Response;
 class ProdukController extends Controller
 {
     /**
-     * Halaman Produk / Etalase karya siswa.
-     * Konten masih statis (data contoh); dijadikan dinamis dari database
-     * pada fase CRUD Produk berikutnya.
+     * Halaman Produk / Etalase karya siswa — data dari database.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return Inertia::render('Produk');
+        $query = Product::active()->with(['category', 'academicProgram'])->ordered();
+
+        // Filter kategori
+        if ($request->filled('kategori') && $request->kategori !== 'Semua') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->kategori);
+            });
+        }
+
+        // Filter kompetensi keahlian
+        if ($request->filled('kompetensi') && $request->kompetensi !== 'Semua') {
+            $query->whereHas('academicProgram', function ($q) use ($request) {
+                $q->where('short_code', $request->kompetensi);
+            });
+        }
+
+        // Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('maker', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->get()->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'description' => $product->description,
+                'short_description' => $product->short_description,
+                'image' => $product->image,
+                'price' => $product->price,
+                'status' => $product->status,
+                'maker' => $product->maker,
+                'is_featured' => $product->is_featured,
+                'category' => $product->category?->name,
+                'kompetensi' => $product->academicProgram?->short_code,
+            ];
+        });
+
+        $categories = ProductCategory::active()->ordered()->get()->pluck('name');
+        $programs = AcademicProgram::active()->ordered()->get()->pluck('short_code');
+
+        return Inertia::render('Produk', [
+            'produkList' => $products,
+            'kategoriList' => $categories,
+            'kompetensiList' => $programs,
+        ]);
     }
 
     /**
-     * Halaman Detail Produk.
-     * Saat ini menggunakan data statis; akan diganti dari DB saat CRUD Produk.
+     * Halaman Detail Produk — data dari database.
      */
-    public function show($id)
+    public function show($id): Response
     {
-        // Data statis sementara — nanti diganti dengan Product::findOrFail($id)
-        $semuaProduk = collect([
-            [
-                'id' => 1,
-                'name' => 'Pembuat Web Portfolio',
-                'description' => 'Website portofolio personal yang dirancang dan dikembangkan oleh siswa sebagai wujud kreativitas, keterampilan, dan penerapan teknologi dalam menciptakan solusi digital yang bermanfaat. Website ini dilengkapi dengan fitur responsif, animasi modern, dan sistem manajemen konten yang mudah digunakan.',
-                'category' => 'Proyek Siswa',
-                'maker' => 'Kelas XII PPLG',
-                'status' => 'Tersedia',
-                'image' => '/images/produk-1.jpg',
-                'price' => null,
-                'kompetensi_keahlian' => 'PPLG',
-            ],
-            [
-                'id' => 2,
-                'name' => 'Aplikasi Manajemen Inventaris',
-                'description' => 'Aplikasi berbasis web untuk manajemen inventaris sekolah yang memudahkan pengelolaan data barang, pelacakan stok, dan pelaporan secara real-time. Dibangun menggunakan framework modern dengan antarmuka yang intuitif.',
-                'category' => 'Produk digital',
-                'maker' => 'Kelas XI PPLG',
-                'status' => 'Tersedia',
-                'image' => '/images/produk-2.jpg',
-                'price' => null,
-                'kompetensi_keahlian' => 'PPLG',
-            ],
-            [
-                'id' => 3,
-                'name' => 'Miniatur Jaringan Komputer',
-                'description' => 'Model skala kecil infrastruktur jaringan komputer yang menampilkan topologi jaringan, perangkat active (router, switch, access point), dan kabelisasi struktural. Cocok untuk pembelajaran dan presentasi.',
-                'category' => 'Proyek Siswa',
-                'maker' => 'Kelas XII TJKT',
-                'status' => 'Tersedia',
-                'image' => '/images/produk-3.jpg',
-                'price' => 150000,
-                'kompetensi_keahlian' => 'TJKT',
-            ],
-        ]);
+        $product = Product::active()
+            ->with(['category', 'academicProgram'])
+            ->findOrFail($id);
 
-        $produk = $semuaProduk->firstWhere('id', $id);
+        $produk = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'description' => $product->description,
+            'short_description' => $product->short_description,
+            'image' => $product->image,
+            'images' => $product->images ?? [],
+            'price' => $product->price,
+            'status' => $product->status,
+            'maker' => $product->maker,
+            'is_featured' => $product->is_featured,
+            'category' => $product->category?->name,
+            'kompetensi_keahlian' => $product->academicProgram?->short_code,
+        ];
 
-        if (!$produk) {
-            abort(404, 'Produk tidak ditemukan');
-        }
-
-        $produkLain = $semuaProduk->where('id', '!=', $id)->take(3)->values();
+        $produkLain = Product::active()
+            ->with(['category', 'academicProgram'])
+            ->where('id', '!=', $product->id)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'slug' => $p->slug,
+                    'image' => $p->image,
+                    'status' => $p->status,
+                    'maker' => $p->maker,
+                    'category' => $p->category?->name,
+                ];
+            });
 
         return Inertia::render('Produk/Show', [
             'produk' => $produk,

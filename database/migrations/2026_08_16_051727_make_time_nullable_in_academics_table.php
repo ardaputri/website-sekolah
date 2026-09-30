@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('academics', function (Blueprint $table) {
-            // Mengubah kolom time agar boleh kosong (nullable)
-            $table->string('time')->nullable()->change();
+            // Menambahkan kolom time karena tidak ada di tabel utama
+            $table->string('time')->nullable();
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('academics', function (Blueprint $table) {
-            // Mengembalikan kolom time menjadi wajib diisi
-            $table->string('time')->nullable(false)->change();
+            // Menghapus kolom time jika rollback
+            $table->dropColumn('time');
         });
     }
 };

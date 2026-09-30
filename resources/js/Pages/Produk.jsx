@@ -1,18 +1,15 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import { to } from '@/lib/nav';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
-/* Placeholder SVG (dipakai bila gambar asli belum diunggah) */
+/* Placeholder SVG */
 const ph = (label, w = 400, h = 300) =>
     `data:image/svg+xml;utf8,${encodeURIComponent(
         `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' font-family='sans-serif' font-size='16' fill='%239ca3af' text-anchor='middle' dominant-baseline='middle'>${label}</text></svg>`,
     )}`;
 
-const KATEGORI = ['Semua', 'Proyek Siswa', 'Produk digital'];
-const KEAHLIAN = ['Semua', 'PPLG', 'TJKT', 'TO', 'TP'];
-
-export default function Produk() {
+export default function Produk({ produkList = [], kategoriList = [], kompetensiList = [] }) {
     const { settings } = usePage().props;
     const siteName = settings?.site_name ?? 'SMKN 4 Bogor';
 
@@ -21,36 +18,45 @@ export default function Produk() {
         e.currentTarget.src = ph(label, w, h);
     };
 
-    /* Data contoh (nanti diganti data nyata dari database saat CRUD Produk). */
-    const semuaProduk = [
-        { id: 1, title: 'Website Portfolio Siswa', desc: 'Website portofolio personal yang dirancang dan dikembangkan oleh siswa PPLG sebagai wujud kreativitas dan penerapan teknologi web modern.', kategori: 'Proyek Siswa', maker: 'Kelas XII PPLG', status: 'Tersedia', image: '/images/produk-1.jpg', kompetensi: 'PPLG' },
-        { id: 2, title: 'Aplikasi Manajemen Inventaris', desc: 'Aplikasi berbasis web untuk manajemen inventaris sekolah yang memudahkan pengelolaan data barang dan pelacakan stok secara real-time.', kategori: 'Produk digital', maker: 'Kelas XI PPLG', status: 'Tersedia', image: '/images/produk-2.jpg', kompetensi: 'PPLG' },
-        { id: 3, title: 'Miniatur Jaringan Komputer', desc: 'Model skala kecil infrastruktur jaringan komputer yang menampilkan topologi jaringan, perangkat aktif, dan kabelisasi struktural.', kategori: 'Proyek Siswa', maker: 'Kelas XII TJKT', status: 'Tersedia', image: '/images/produk-3.jpg', kompetensi: 'TJKT' },
-        { id: 4, title: 'Sistem Informasi Akademik', desc: 'Platform digital pengelolaan data akademik siswa termasuk nilai, jadwal, dan absensi dengan antarmuka yang mudah digunakan.', kategori: 'Produk digital', maker: 'Kelas XI PPLG', status: 'Tersedia', image: '/images/produk-4.jpg', kompetensi: 'PPLG' },
-        { id: 5, title: 'Service Kit Otomotif Custom', desc: 'Peralatan servis kendaraan yang dirancang dan dirakit oleh siswa Teknik Otomotif untuk keperluan bengkel produksi sekolah.', kategori: 'Proyek Siswa', maker: 'Kelas XII TO', status: 'Segera Hadir', image: '/images/produk-5.jpg', kompetensi: 'TO' },
-        { id: 6, title: 'Mobile App E-Library', desc: 'Aplikasi mobile perpustakaan digital yang memungkinkan siswa meminjam dan membaca buku secara online.', kategori: 'Produk digital', maker: 'Kelas X PPLG', status: 'Tersedia', image: '/images/produk-6.jpg', kompetensi: 'PPLG' },
-        { id: 7, title: 'Rak Server Mini', desc: 'Rak server mini hasil fabrikasi siswa Teknik Pengelasan, dirancang untuk kebutuhan laboratorium jaringan.', kategori: 'Proyek Siswa', maker: 'Kelas XII TP', status: 'Tersedia', image: '/images/produk-7.jpg', kompetensi: 'TP' },
-        { id: 8, title: 'Dashboard Monitoring Jaringan', desc: 'Panel kontrol berbasis web untuk memonitor status dan kesehatan jaringan komputer secara real-time.', kategori: 'Produk digital', maker: 'Kelas XII TJKT', status: 'Tersedia', image: '/images/produk-8.jpg', kompetensi: 'TJKT' },
-        { id: 9, title: 'Karya Las Ornament Dekoratif', desc: 'Produk kerajinan logam las dekoratif berupa railing, teralis, dan ornamen yang dihasilkan dari bengkel produksi sekolah.', kategori: 'Proyek Siswa', maker: 'Kelas XII TP', status: 'Tersedia', image: '/images/produk-9.jpg', kompetensi: 'TP' },
-    ];
+    const getImageUrl = (img) => {
+        if (!img) return ph('Produk', 640, 400);
+        if (img.startsWith('http') || img.startsWith('/images/')) return img;
+        return `/storage/${img}`;
+    };
 
+    /* Filter state */
     const [kategori, setKategori] = useState('Semua');
     const [kompetensi, setKompetensi] = useState('Semua');
     const [cari, setCari] = useState('');
 
+    const semuaKategori = ['Semua', ...kategoriList];
+    const semuaKompetensi = ['Semua', ...kompetensiList];
+
     const hasil = useMemo(() => {
         const q = cari.trim().toLowerCase();
-        return semuaProduk.filter((p) => {
-            const cocokKategori = kategori === 'Semua' || p.kategori === kategori;
+        return produkList.filter((p) => {
+            const cocokKategori = kategori === 'Semua' || p.category === kategori;
             const cocokKompetensi = kompetensi === 'Semua' || p.kompetensi === kompetensi;
             const cocokCari =
                 q === '' ||
-                p.title.toLowerCase().includes(q) ||
-                p.desc.toLowerCase().includes(q);
+                p.name.toLowerCase().includes(q) ||
+                (p.description || '').toLowerCase().includes(q) ||
+                (p.maker || '').toLowerCase().includes(q);
             return cocokKategori && cocokKompetensi && cocokCari;
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [kategori, kompetensi, cari]);
+    }, [produkList, kategori, kompetensi, cari]);
+
+    const statusLabel = {
+        available: 'Tersedia',
+        coming_soon: 'Segera Hadir',
+        sold_out: 'Terjual',
+    };
+
+    const statusColor = {
+        available: 'bg-emerald-100 text-emerald-700',
+        coming_soon: 'bg-yellow-100 text-yellow-700',
+        sold_out: 'bg-red-100 text-red-700',
+    };
 
     return (
         <PublicLayout>
@@ -107,7 +113,7 @@ export default function Produk() {
                     <div className="flex flex-wrap gap-4">
                         {/* Filter Kategori */}
                         <div className="flex flex-wrap gap-2">
-                            {KATEGORI.map((k) => (
+                            {semuaKategori.map((k) => (
                                 <button
                                     key={k}
                                     onClick={() => setKategori(k)}
@@ -124,7 +130,7 @@ export default function Produk() {
                         </div>
                         {/* Filter Kompetensi Keahlian */}
                         <div className="flex flex-wrap gap-2">
-                            {KEAHLIAN.map((k) => (
+                            {semuaKompetensi.map((k) => (
                                 <button
                                     key={k}
                                     onClick={() => setKompetensi(k)}
@@ -147,43 +153,45 @@ export default function Produk() {
             <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 {hasil.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-gray-200 py-20 text-center text-gray-400">
-                        Tidak ada produk yang cocok dengan pencarian Anda.
+                        {produkList.length === 0
+                            ? 'Belum ada produk. Tambahkan produk melalui admin panel.'
+                            : 'Tidak ada produk yang cocok dengan pencarian Anda.'}
                     </div>
                 ) : (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {hasil.map((p, i) => (
+                        {hasil.map((p) => (
                             <article
-                                key={i}
+                                key={p.id}
                                 className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
                             >
                                 <img
-                                    src={p.image}
+                                    src={getImageUrl(p.image)}
                                     onError={fallbackTo('Produk', 640, 400)}
-                                    alt={p.title}
+                                    alt={p.name}
                                     className="h-40 w-full object-cover"
                                 />
                                 <div className="flex flex-1 flex-col p-5">
-                                    <h3 className="font-bold text-gray-900 group-hover:text-[#1E2A5E]">{p.title}</h3>
+                                    <h3 className="font-bold text-gray-900 group-hover:text-[#1E2A5E]">{p.name}</h3>
                                     <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600 line-clamp-3">
-                                        {p.desc}
+                                        {p.short_description || p.description || ''}
                                     </p>
 
                                     <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
                                         <div>
                                             <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Dibuat oleh</div>
-                                            <div className="text-sm font-medium text-gray-700">{p.maker}</div>
+                                            <div className="text-sm font-medium text-gray-700">{p.maker || '-'}</div>
                                         </div>
-                                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
-                                            {p.status}
+                                        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusColor[p.status] || 'bg-gray-100 text-gray-600'}`}>
+                                            {statusLabel[p.status] || p.status}
                                         </span>
                                     </div>
 
-                                    <a
+                                    <Link
                                         href={`/produk/${p.id}`}
                                         className="mt-4 block rounded-lg border border-gray-200 py-2 text-center text-sm font-semibold text-[#1E2A5E] transition hover:bg-gray-50"
                                     >
                                         Lihat Detail →
-                                    </a>
+                                    </Link>
                                 </div>
                             </article>
                         ))}

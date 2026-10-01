@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Models\ContactReview;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -44,6 +45,16 @@ class ContactMessageController extends Controller
             'read' => ContactMessage::where('is_read', true)->count(),
         ];
 
+        // Daftar ulasan (rating & komentar dari halaman Kontak)
+        $reviews = ContactReview::latest()->get();
+
+        $reviewStats = [
+            'total' => ContactReview::count(),
+            'shown' => ContactReview::where('is_approved', true)->count(),
+            'hidden' => ContactReview::where('is_approved', false)->count(),
+            'average' => (float) round((float) ContactReview::avg('rating'), 1),
+        ];
+
         return Inertia::render('Admin/Messages/Index', [
             'messages' => $messages,
             'filters' => [
@@ -51,7 +62,37 @@ class ContactMessageController extends Controller
                 'status' => $request->status,
             ],
             'stats' => $stats,
+            'reviews' => $reviews,
+            'reviewStats' => $reviewStats,
         ]);
+    }
+
+    /**
+     * Edit ulasan (nama, rating, komentar, status tampil/sembunyi).
+     */
+    public function updateReview(Request $request, ContactReview $review)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:150'],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['required', 'string', 'max:1000'],
+            'is_approved' => ['required', 'boolean'],
+        ]);
+
+        $review->update($validated);
+
+        return back()->with('success', 'Ulasan berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus ulasan.
+     */
+    public function destroyReview(ContactReview $review)
+    {
+        $review->delete();
+
+        return back()->with('success', 'Ulasan berhasil dihapus.');
     }
 
     /**

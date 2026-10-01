@@ -39,6 +39,10 @@ Route::prefix('admin')
         Route::post('/messages/{message}/unread', [ContactMessageController::class, 'markUnread'])->name('messages.mark-unread');
         Route::delete('/messages/{message}', [ContactMessageController::class, 'destroy'])->name('messages.destroy');
 
+        // ── Ulasan / Rating Kontak ──
+        Route::put('/reviews/{review}', [ContactMessageController::class, 'updateReview'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ContactMessageController::class, 'destroyReview'])->name('reviews.destroy');
+
         // ── Akademik (Jadwal Pelajaran) ──
         Route::get('/academic', [AdminAcademicController::class, 'index'])->name('academic.index');
         Route::post('/academic', [AdminAcademicController::class, 'store'])->name('academic.store');

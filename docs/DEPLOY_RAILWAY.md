@@ -267,7 +267,9 @@ Railway akan mendeploy ulang otomatis setelah perubahan variabel disimpan.
 
 Saat deploy, Railway menjalankan (lihat `railway.json`):
 
-1. **Build** — `composer install --no-dev` + `npm ci` + `npm run build`.
+1. **Build** (`railway.json`) — `composer install --no-dev` lalu `npm run build`.
+   *Railpack sudah memasang dependency npm sendiri di tahap install, jadi build command
+   **tidak boleh** memuat `npm ci`/`npm install` (lihat troubleshooting `EBUSY`).*
 2. **Pre-deploy** (`railway/init-app.sh`) — `migrate --force`, lalu seeder
    **hanya jika tabel `users` masih kosong**, lalu `storage:link`, lalu cache config/route/view.
 3. **Start** — `railway/start-app.sh` → server di `$PORT`.
@@ -355,7 +357,8 @@ Setiap perintah perbaikan di bawah sudah diberi label tempat menjalankannya.
 
 | Gejala | Penyebab & Solusi |
 |---|---|
-| `Vite manifest not found at /app/public/build/manifest.json` | Build frontend gagal. Cek log build; pastikan `npm ci && npm run build` ada di `railway.json` dan `package.json` punya script `build`. |
+| `Vite manifest not found at /app/public/build/manifest.json` | Build frontend gagal. Cek log build; pastikan `npm run build` ada di `railway.json` dan `package.json` punya script `build`. |
+| `npm error code EBUSY` / `EBUSY: resource busy or locked, rmdir '/app/node_modules/.cache'` | Build command memuat `npm ci`/`npm install`. Railpack sudah memasang dependency di tahap install, dan `node_modules/.cache` sedang ter-mount sehingga tidak bisa dihapus. Solusi: hapus `npm ci` dari `railway.json` → tinggalkan `npm run build`. |
 | `No application encryption key has been specified` | `APP_KEY` belum diisi / salah. Jalankan `php artisan key:generate --show` di terminal lokal lalu set ulang di Railway. |
 | `SQLSTATE[HY000] [2002] Connection refused` | Variabel `DB_*` belum menunjuk ke MySQL. Pastikan referensi `${{MySQL.MYSQLHOST}}` namanya cocok dengan nama service database. |
 | Halaman 502 / container restart terus | Cek **Deploy Logs**. Sering karena `php artisan config:cache` gagal atau `APP_URL`/port salah. |

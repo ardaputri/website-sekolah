@@ -11,7 +11,9 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         // Akun Super Admin default. GANTI password ini setelah login pertama.
-        $superAdmin = User::updateOrCreate(
+        // firstOrCreate (bukan updateOrCreate) supaya password yang sudah diganti
+        // TIDAK ter-reset ke 'password' setiap kali seeder dijalankan saat deploy.
+        $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@sekolah.test'],
             [
                 'name' => 'Super Admin',
@@ -23,7 +25,7 @@ class AdminUserSeeder extends Seeder
         $superAdmin->syncRoles(['super-admin']);
 
         // Akun Admin contoh.
-        $admin = User::updateOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@sekolah.test'],
             [
                 'name' => 'Admin Sekolah',

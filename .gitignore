@@ -1,47 +1,49 @@
-/.phpunit.cache
+# ==========================================================================
+# .gitignore — Website SMKN 4 Bogor
+# Tujuan: `git add .` aman dipakai; hanya file sumber yang ikut ter-commit.
+# ==========================================================================
 
+# --- Dependency & hasil build (dibangun ulang di server/Railway) -----------
 /node_modules
-
+/vendor
 /public/build
-
 /public/hot
 
+# --- Environment & rahasia (JANGAN pernah di-commit) ----------------------
+.env
+.env.backup
+.env.production
+.env.local
+.env.*.local
+
+# --- Storage / file upload (dibuat ulang oleh `php artisan storage:link`) --
 /public/storage
-
 /storage/*.key
-
 /storage/pail
 
-/vendor
-
-.env
-
-.env.backup
-
-.env.production
-
-.phpactor.json
-
+# --- Cache & hasil tooling ------------------------------------------------
+/.phpunit.cache
 .phpunit.result.cache
+bootstrap/cache/*.php
+storage/framework/views/*.php
+database/*.sqlite*
 
-Homestead.json
+# --- Editor / OS / agent lokal --------------------------------------------
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+.freebuff/
 
-Homestead.yaml
-
+# --- Log package manager --------------------------------------------------
 npm-debug.log
-
 yarn-error.log
 
+# --- Kredensial layanan (Composer auth) -----------------------------------
 /auth.json
 
-/.fleet
-
-/.idea
-
-/.nova
-
-/.vscode
-
-/.zed
-
-.freebuff/
+# --- Konfigurasi Homestead (tidak dipakai di Railway) ---------------------
+Homestead.json
+Homestead.yaml

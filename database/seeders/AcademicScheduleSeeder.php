@@ -52,8 +52,20 @@ class AcademicScheduleSeeder extends Seeder
             ['kelas' => 'X', 'jurusan' => 'TP', 'rombel' => 'TP 1', 'hari' => 'senin', 'mata_pelajaran' => 'Gambar Teknik', 'jam_mulai' => '09:00', 'jam_selesai' => '11:00', 'guru' => 'Pak Hendra', 'ruang' => 'Lab.Gambar Teknik'],
         ];
 
+        // updateOrCreate agar seeder aman dijalankan berulang kali
+        // (Railway menjalankan seeder di setiap deploy baru).
         foreach ($schedule as $item) {
-            Academic::create($item);
+            Academic::updateOrCreate(
+                [
+                    'kelas' => $item['kelas'],
+                    'jurusan' => $item['jurusan'],
+                    'rombel' => $item['rombel'],
+                    'hari' => $item['hari'],
+                    'mata_pelajaran' => $item['mata_pelajaran'],
+                    'jam_mulai' => $item['jam_mulai'],
+                ],
+                $item
+            );
         }
     }
 }

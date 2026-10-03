@@ -12,8 +12,18 @@ Setiap perintah diawali label yang menunjukkan **di terminal mana** perintah itu
 |---|---|---|
 | 🖥️ **Terminal lokal (CMD/PowerShell)** | Dijalankan di komputer Anda, di folder proyek `C:\xampp\htdocs\website-sekolah` | `php artisan ...`, `git ...`, `composer ...` |
 | ☁️ **Railway Dashboard** | Dilakukan dengan klik di situs **https://railway.com** (bukan terminal) | Add MySQL, Generate Domain, isi Variables |
-| 🚂 **Railway CLI (terminal lokal)** | Dijalankan di terminal lokal setelah memasang CLI, untuk memerintah server Railway | `railway run ...`, `railway logs` |
+| ☁️ **Railway Console** | Dijalankan langsung di **Console** service di website Railway — **tanpa install apa pun**. Prompt sudah otomatis berada di folder `/app` | `php artisan ...`, `ls`, `tail` |
 | 🌐 **Browser** | Buka sebuah URL | cek `/up`, buka beranda |
+
+> 💡 **Cara membuka Railway Console:** buka proyek di **https://railway.com** → klik service **`website-sekolah`**
+> (service aplikasi, bukan MySQL) → tab **Console** → tunggu sampai muncul prompt seperti
+> `root@xxxxxxxx:/app#`. Baru ketik perintahnya. Perintah `php artisan ...` otomatis jalan di folder
+> proyek, jadi **tidak perlu** mengetik `cd /app`.
+>
+> ⚠️ **Hati-hati saat menempel (paste) di Console:** Console Railway kadang menyisipkan karakter
+> `^[[200~` dan `~` ke dalam perintah, sehingga muncul error seperti
+> `The "--force~" option does not exist`. Kalau itu terjadi, hapus karakter tersebut atau
+> **ketik perintahnya manual**.
 
 > ⚠️ **Catatan penting untuk CMD:** jangan memakai tanda `\` untuk menyambung baris — CMD tidak mengenalnya.
 > Semua perintah di panduan ini sudah ditulis **satu baris penuh** agar bisa di-copy-paste langsung ke CMD
@@ -72,7 +82,7 @@ Railway **tidak** menjalankan test saat deploy, jadi ini tidak menghalangi hosti
 |---|---|
 | `railway.json` | Menentukan build command, pre-deploy, start command, dan healthcheck |
 | `railway/init-app.sh` | Pre-deploy: migrasi, seeder (hanya saat DB kosong), `storage:link`, cache config/route/view |
-| `railway/start-app.sh` | Start: pastikan symlink storage lalu jalankan server di `$PORT` |
+| `railway/start-app.sh` | Start: siapkan folder storage, **jalankan `init-app.sh` sebagai cadangan** (kalau pre-deploy dilewati Railway), lalu nyalakan server di `$PORT` |
 
 ---
 
@@ -289,23 +299,15 @@ Saat deploy, Railway menjalankan (lihat `railway.json`):
 - Deploy berikutnya: `users` sudah ada → seeder **dilewati**, sehingga perubahan data
   dari admin (produk, berita, ulasan, jadwal) tidak tertimpa.
 
-🚂 **Railway CLI (terminal lokal)** — hanya kalau perlu seed ulang manual:
+☁️ **Railway Console** — hanya kalau perlu menjalankan perintah di server secara manual.
+Buka: project → service **`website-sekolah`** → tab **Console**, lalu ketik:
 
-```bat
-:: Sekali saja di komputer:
-npm install -g @railway/cli
-railway login
-railway link
-
-:: Jalankan seeder di server Railway:
-railway run php artisan db:seed --force
+```bash
+php artisan db:seed --force
 ```
 
-Melihat log langsung dari terminal lokal:
-
-```bat
-railway logs
-```
+Melihat log server: ☁️ Railway Dashboard → tab **Deployments** → klik deployment teratas →
+**Deploy Logs** (log berjalan real-time di web, tidak perlu terminal).
 
 ---
 
@@ -320,8 +322,8 @@ karena filesystem Railway bersifat sementara.
 2. Set **Mount path**: `/app/storage/app/public`
 3. Klik **Attach**.
 
-Karena `railway/start-app.sh` menjalankan `php artisan storage:link` setiap kali
-container menyala, gambar otomatis dapat diakses lewat `/storage/...`.
+Karena `railway/start-app.sh` menjalankan inisialisasi (termasuk `php artisan storage:link`)
+setiap kali container menyala, gambar otomatis dapat diakses lewat `/storage/...`.
 
 > Gambar bawaan di `public/images` (logo, foto berita, dll.) sudah ikut ter-deploy
 > dan tidak terpengaruh volume.
@@ -362,15 +364,17 @@ Setiap perintah perbaikan di bawah sudah diberi label tempat menjalankannya.
 | `No application encryption key has been specified` | `APP_KEY` belum diisi / salah. Jalankan `php artisan key:generate --show` di terminal lokal lalu set ulang di Railway. |
 | `SQLSTATE[HY000] [2002] Connection refused` | Variabel `DB_*` belum menunjuk ke MySQL. Pastikan referensi `${{MySQL.MYSQLHOST}}` namanya cocok dengan nama service database. |
 | Halaman 502 / container restart terus | Cek **Deploy Logs**. Sering karena `php artisan config:cache` gagal atau `APP_URL`/port salah. |
-| `/up` OK tapi beranda error 500 | Kemungkinan seeder belum jalan / tabel kosong. |
+| `/up` OK tapi beranda `500 INTERNAL SERVER ERROR` | Lihat bagian **Diagnosa 500** tepat di bawah tabel ini. |
+| `ERROR  Migration table not found.` (di Console) | Database Railway masih kosong — pre-deploy/migrasi belum jalan. Jalankan `php artisan migrate --force` lalu `php artisan db:seed --force` di ☁️ **Railway Console**. |
+| `The "--force~" option does not exist` | Karakter `~`/`^[[200~` ikut ter-paste dari Console (bracketed paste). Ketik ulang perintahnya manual, tanpa `~`. |
 
-🧹 **Perbaikan cepat dari terminal lokal** (butuh Railway CLI, lihat langkah 9):
+🧹 **Perbaikan cepat lewat** ☁️ **Railway Console** (project → service `website-sekolah` → tab **Console**):
 
-```bat
-railway run php artisan migrate --force
-railway run php artisan db:seed --force
-railway run php artisan optimize:clear
-railway run php artisan storage:link
+```bash
+php artisan migrate --force
+php artisan db:seed --force
+php artisan optimize:clear
+php artisan storage:link
 ```
 
 🖥️ **Terminal lokal (CMD/PowerShell)** — membersihkan file yang tidak sengaja terlacak:
@@ -383,9 +387,68 @@ git rm --cached -r public/build
 | Gejala lanjutan | Solusi |
 |---|---|
 | Gambar upload hilang setelah deploy | Volume belum di-attach pada `/app/storage/app/public` (langkah 10). |
-| Gambar `/storage/...` 404 | `storage:link` gagal. Jalankan `railway run php artisan storage:link`, dan pastikan `railway/start-app.sh` dipakai sebagai start command. |
+| Gambar `/storage/...` 404 | `storage:link` gagal. Di ☁️ **Railway Console** jalankan `php artisan storage:link`, dan pastikan `railway/start-app.sh` dipakai sebagai start command. |
 | CSS/JS tidak ter-style, tampilan polos | `public/hot` ikut ter-push. Jalankan `git rm --cached public/hot` lalu push ulang (file ini sudah ada di `.gitignore`). |
 | Perubahan data admin hilang tiap deploy | Seeder seharusnya dilewati. Pastikan `railway/init-app.sh` versi terbaru yang dipakai (cek log "seeder dilewati"). |
+
+### Diagnosa `500 INTERNAL SERVER ERROR`
+
+Ciri khas: domain bisa dibuka tapi tampil **500**, sementara `/up` tetap `200`. Artinya server hidup dan
+DB bisa dijangkau, tapi ada satu hal yang gagal saat request halaman. Penyebab tersering:
+
+| Penyebab | Cara memastikan |
+|---|---|
+| **Manifest Vite tidak ada** (`Vite manifest not found`) — build frontend tidak jalan / `public/build` kosong | Cek `ls -la public/build/manifest.json` di Console |
+| **`APP_KEY` belum diisi** | Cek di Console (lihat perintah di bawah) |
+| **Tabel database belum dibuat** (migrasi belum jalan) | Cek `php artisan migrate:status` di Console |
+| **Database kosong** (seeder belum jalan) sehingga view gagal memuat data | Cek jumlah user di Console |
+| **Volume salah mount**, menutupi folder `storage/framework` | ☁️ Railway Dashboard → service → **Settings → Volumes**, pastikan mount path **persis** `/app/storage/app/public` |
+
+**Langkah 1 — tampilkan pesan error aslinya (paling cepat).**
+
+☁️ **Railway Dashboard**: buka **Variables** service aplikasi → ubah `APP_DEBUG` menjadi `true` →
+**Save** (Railway deploy ulang otomatis) → refresh domain → Laravel akan menampilkan pesan error +
+stack trace yang jelas.
+
+> ⚠️ Setelah selesai mendiagnosa, **kembalikan** `APP_DEBUG` ke `false` agar detail error tidak
+> terlihat publik.
+
+**Langkah 2 — cek cepat lewat** ☁️ **Railway Console** (project → service `website-sekolah` → tab **Console**):
+
+```bash
+# 1. Apakah hasil build frontend ada?
+ls -la public/build/manifest.json
+
+# 2. Apakah APP_KEY terisi?
+php artisan tinker --execute="echo config('app.key') ? 'APP_KEY OK' : 'APP_KEY MISSING';"
+
+# 3. Apakah migrasi sudah jalan?
+php artisan migrate:status | tail -n 25
+
+# 4. Apakah data awal sudah masuk?
+php artisan tinker --execute="echo 'users=' . \App\Models\User::count();"
+```
+
+**Langkah 3 — perbaiki sesuai temuan.** Semua di ☁️ **Railway Console**:
+
+```bash
+# Kalau migrasi/seed belum jalan:
+php artisan migrate --force
+php artisan db:seed --force
+
+# Kalau manifest kurang: build ulang lewat deploy (bukan dari Console), lalu pastikan
+# variabel Railway tidak memuat npm ci — lihat baris EBUSY di atas.
+
+# Kalau cache basi setelah mengubah variabel/env:
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+> Perubahan yang dilakukan lewat Console bersifat **sementara** — hilang saat deploy berikutnya.
+> Kalau sebuah perbaikan berhasil, pastikan perbaikannya permanen (commit file, atau ubah variabel),
+> jangan mengandalkan Console.
 
 ---
 

@@ -20,7 +20,7 @@ echo "==> Menjalankan migrasi database..."
 php artisan migrate --force
 
 echo "==> Mengecek apakah database masih kosong..."
-USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | tr -dc '0-9')
+USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | tr -dc '0-9' || true)
 USER_COUNT=${USER_COUNT:-0}
 
 if [ "$USER_COUNT" = "0" ]; then

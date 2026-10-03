@@ -12,8 +12,8 @@ export default function Index({ berita = [] }) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         _method: 'POST',
         title: '',
-        category: 'PRESTASI',
-        status: 'PUBLISHED',
+        category: 'Prestasi',
+        status: 'published',
         content: '',
         image: null,
     });
@@ -52,8 +52,8 @@ export default function Index({ berita = [] }) {
         setData({
             _method: 'PUT',
             title: item.title || '',
-            category: item.category || 'PRESTASI',
-            status: item.status || 'PUBLISHED',
+            category: item.category || 'Prestasi',
+            status: item.status || 'published',
             content: item.content || '',
             image: null,
         });
@@ -107,8 +107,8 @@ export default function Index({ berita = [] }) {
 
     // Statistik
     const totalKegiatan = berita.length;
-    const totalPublished = berita.filter((item) => item.status === 'PUBLISHED').length;
-    const totalDrafts = berita.filter((item) => item.status === 'DRAFT').length;
+    const totalPublished = berita.filter((item) => item.status === 'published').length;
+    const totalDrafts = berita.filter((item) => item.status === 'draft').length;
 
     // Filter Pencarian
     const filteredBerita = berita.filter((item) =>
@@ -250,7 +250,7 @@ export default function Index({ berita = [] }) {
                                             </td>
                                             <td className="px-6 py-3.5">
                                                 <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                                                    item.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                    item.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                     {item.status}
                                                 </span>
@@ -308,9 +308,9 @@ export default function Index({ berita = [] }) {
                                         onChange={(e) => setData('category', e.target.value)}
                                         className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-xs focus:border-indigo-500 focus:outline-none"
                                     >
-                                        <option value="PRESTASI">PRESTASI</option>
-                                        <option value="KEGIATAN">KEGIATAN</option>
-                                        <option value="PENGUMUMAN">PENGUMUMAN</option>
+                                        <option value="Prestasi">Prestasi</option>
+                                        <option value="Kegiatan">Kegiatan</option>
+                                        <option value="Pengumuman">Pengumuman</option>
                                     </select>
                                 </div>
                                 <div>
@@ -320,8 +320,8 @@ export default function Index({ berita = [] }) {
                                         onChange={(e) => setData('status', e.target.value)}
                                         className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-xs focus:border-indigo-500 focus:outline-none"
                                     >
-                                        <option value="PUBLISHED">PUBLISHED</option>
-                                        <option value="DRAFT">DRAFT</option>
+                                        <option value="published">PUBLISHED</option>
+                                        <option value="draft">DRAFT</option>
                                     </select>
                                 </div>
                             </div>

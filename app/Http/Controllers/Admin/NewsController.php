@@ -12,6 +12,21 @@ use Inertia\Inertia;
 class NewsController extends Controller
 {
     /**
+     * Form admin mengirim status/kategori dengan huruf besar (mis. PUBLISHED,
+     * PRESTASI), sedangkan enum kolom `status` dan aturan validasi memakai huruf
+     * kecil. Normalkan lebih dulu agar validasi lolos dan data konsisten.
+     */
+    private function normalizeStatusAndCategory(Request $request): void
+    {
+        $request->merge([
+            'status' => strtolower((string) $request->input('status')),
+            'category' => $request->filled('category')
+                ? ucfirst(strtolower((string) $request->input('category')))
+                : $request->input('category'),
+        ]);
+    }
+
+    /**
      * Menampilkan daftar berita di Admin.
      */
     public function index(Request $request)
@@ -73,6 +88,8 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
+        $this->normalizeStatusAndCategory($request);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string'],
@@ -82,6 +99,10 @@ class NewsController extends Controller
             'status' => ['required', 'in:draft,published,scheduled'],
             'published_at' => ['nullable', 'date'],
         ]);
+
+        if ($validated['status'] === 'published' && empty($validated['published_at'])) {
+            $validated['published_at'] = now();
+        }
 
         $slug = Str::slug($validated['title']);
 
@@ -124,6 +145,8 @@ class NewsController extends Controller
      */
     public function update(Request $request, News $news)
     {
+        $this->normalizeStatusAndCategory($request);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string'],
@@ -133,6 +156,10 @@ class NewsController extends Controller
             'status' => ['required', 'in:draft,published,scheduled'],
             'published_at' => ['nullable', 'date'],
         ]);
+
+        if ($validated['status'] === 'published' && ! $news->published_at && empty($validated['published_at'])) {
+            $validated['published_at'] = now();
+        }
 
         if ($news->title !== $validated['title']) {
             $slug = Str::slug($validated['title']);

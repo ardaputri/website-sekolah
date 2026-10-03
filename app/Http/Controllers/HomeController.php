@@ -22,7 +22,14 @@ class HomeController extends Controller
                 'name' => $e->name,
                 'slug' => $e->slug,
                 'desc' => \Str::limit(strip_tags($e->description), 100),
-                'image' => $e->image ? '/storage/' . $e->image : null,
+                // Path yang sudah berupa URL penuh atau diawali '/images/' dipakai apa
+                // adanya (file statis di public/images). Sisanya dianggap relatif ke
+                // disk publik sehingga perlu prefix '/storage/'.
+                'image' => match (true) {
+                    blank($e->image) => null,
+                    str_starts_with($e->image, 'http') || str_starts_with($e->image, '/images/') => $e->image,
+                    default => '/storage/' . $e->image,
+                },
             ]);
 
         return Inertia::render('Home', [

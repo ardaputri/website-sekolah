@@ -15,7 +15,7 @@ class BeritaController extends Controller
     public function index()
     {
         // Ambil berita yang statusnya PUBLISHED untuk ditampilkan ke user
-        $berita = News::with('author')->where('status', 'PUBLISHED')->latest()->get();
+        $berita = News::with('author')->where('status', 'published')->latest()->get();
 
         return Inertia::render('Berita', [
             'berita' => $berita,
@@ -27,7 +27,7 @@ class BeritaController extends Controller
     {
         $berita = News::with('author')
             ->where('slug', $slug)
-            ->where('status', 'PUBLISHED')
+            ->where('status', 'published')
             ->firstOrFail();
 
         // Increment views
@@ -35,7 +35,7 @@ class BeritaController extends Controller
 
         // Ambil 3 berita lainnya untuk section 'Berita Lainnya'
         $beritaLain = News::with('author')
-            ->where('status', 'PUBLISHED')
+            ->where('status', 'published')
             ->where('id', '!=', $berita->id)
             ->latest()
             ->take(3)
@@ -70,7 +70,7 @@ class BeritaController extends Controller
         $validated['excerpt'] = Str::limit(strip_tags($request->content), 150);
         $validated['author_id'] = Auth::id() ?? 1; // Fallback ke ID 1 jika auth belum diset
 
-        if ($request->status === 'PUBLISHED') {
+        if (strtolower((string) $request->status) === 'published') {
             $validated['published_at'] = now();
         }
 
@@ -104,7 +104,7 @@ class BeritaController extends Controller
         $validated['excerpt'] = Str::limit(strip_tags($request->content), 150);
 
         // Atur published_at jika status diubah ke PUBLISHED
-        if ($request->status === 'PUBLISHED' && !$news->published_at) {
+        if (strtolower((string) $request->status) === 'published' && !$news->published_at) {
             $validated['published_at'] = now();
         }
 

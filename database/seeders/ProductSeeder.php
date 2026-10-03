@@ -129,7 +129,10 @@ class ProductSeeder extends Seeder
                     'slug' => Str::slug($item['name']),
                     'description' => $item['description'],
                     'short_description' => $item['short_description'],
-                    'image' => str_replace('/images/', '', $item['image']),
+                    // Simpan path lengkap (mis. /images/produk-1.jpg) agar frontend
+                    // memakai file dari public/images. Path yang tidak diawali
+                    // '/images/' atau 'http' akan dianggap relatif ke /storage/.
+                    'image' => $item['image'],
                     'price' => $item['price'],
                     'status' => $item['status'],
                     'product_category_id' => $category?->id,

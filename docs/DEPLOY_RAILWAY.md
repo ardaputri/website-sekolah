@@ -57,6 +57,18 @@ Setiap perintah diawali label yang menunjukkan **di terminal mana** perintah itu
 4. **`.env.example`** — disesuaikan untuk MySQL + kebutuhan hosting (ada contoh referensi variabel Railway).
 5. **Sisa file uji** `storage/app/test-review-crud.php` dihapus.
 6. **`.gitignore`** — dirapikan supaya `git add .` hanya mengambil file yang memang perlu di-commit.
+7. **`NewsSeeder` ditambahkan.** Sebelumnya tidak ada seeder berita sama sekali, sehingga halaman
+   `/berita` selalu kosong pada database baru (berita yang dibuat manual di lokal tidak ikut pindah).
+8. **Huruf besar/kecil foto diperbaiki.** `hero-lapangan.JPG`, `akademik-cta.JPG`, dan
+   `login-bg.JPG` diubah ke `.jpg` karena server Linux membedakan huruf besar/kecil.
+9. **Status & kategori berita diseragamkan.** Form admin mengirim `PUBLISHED`/`PRESTASI`
+   (huruf besar) sementara validasi dan enum database memakai huruf kecil, jadi menyimpan berita
+   dari admin gagal. Sekarang dinormalkan otomatis.
+10. **Path gambar data contoh memakai `/images/...`.** `ProductSeeder` dan `KesiswaanSeeder`
+    sekarang menunjuk file di `public/images`, bukan `/storage/...`, sehingga cukup menaruh
+    file foto di sana (daftar lengkap di `public/images/README.txt`).
+11. **Placeholder SVG diperbaiki.** Sebelumnya warna latar ter-double-encode (`%23`) sehingga
+    gambar pengganti tampil hitam, bukan abu-abu.
 
 ### Catatan: 6 test bawaan gagal (bukan penghalang deploy)
 
@@ -330,15 +342,30 @@ setiap kali container menyala, gambar otomatis dapat diakses lewat `/storage/...
 > Gambar bawaan di `public/images` (logo, foto berita, dll.) sudah ikut ter-deploy
 > dan tidak terpengaruh volume.
 
-### ⚠️ Catatan gambar produk
+### Gambar statis (`public/images/`)
 
-`ProductSeeder` menyimpan nama file seperti `produk-1.jpg` → aplikasi memanggil
-`/storage/produk-1.jpg`. File tersebut tidak ada di repo maupun di `storage/app/public`,
-jadi gambar produk contoh akan tampil kosong. Solusinya salah satu:
+Daftar **lengkap** nama file gambar yang dipakai situs ada di
+[`public/images/README.txt`](../public/images/README.txt) — dikelompokkan per halaman
+(Beranda, Profil, Akademik, Kesiswaan, Organisasi, Ekstrakurikuler, Produk, Berita).
 
-- Upload gambar produk lewat **Admin → Produk** (disimpan ke volume, permanen), atau
-- Taruh `produk-1.jpg` … `produk-9.jpg` di `public/images/` — tapi data DB perlu disesuaikan
-  menjadi `/images/produk-1.jpg` (path yang diawali `/images/` dibiarkan apa adanya oleh aplikasi).
+Cara memakai gambar sendiri:
+
+1. Beri nama file **sama persis** seperti di daftar itu (huruf kecil semua, ekstensi `.jpg`).
+2. Taruh di `public/images/`, lalu commit + push.
+3. Seeder sekarang menyimpan path `/images/...` (bukan `/storage/...`) untuk data contoh,
+   jadi tidak perlu mengubah database — cukup refresh halaman.
+
+> ⚠️ **Server Linux membedakan huruf besar/kecil.** File `hero-lapangan.JPG` tidak akan
+ditemukan oleh kode yang meminta `/images/hero-lapangan.jpg`. Selalu pakai huruf kecil.
+
+Foto yang belum tersedia otomatis diganti placeholder abu-abu, jadi halaman tetap rapi.
+
+### Gambar bawaan vs gambar upload
+
+| Jenis | Lokasi | Ikut ke Railway? |
+|---|---|---|
+| Gambar statis (logo, hero, berita contoh, produk contoh) | `public/images/` | ✅ Ter-commit |
+| Gambar hasil upload admin | `storage/app/public/...` | ❌ Tidak (folder `storage` di-gitignore) → upload di Railway |
 
 ---
 

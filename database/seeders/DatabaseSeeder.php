@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             KesiswaanSeeder::class,
             AcademicScheduleSeeder::class,
             ProductSeeder::class,
+            NewsSeeder::class,
             ContactReviewSeeder::class,
         ]);
     }

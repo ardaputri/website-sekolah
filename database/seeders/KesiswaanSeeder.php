@@ -15,6 +15,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'OSIS',
                 'slug' => 'osis',
+                'image' => '/images/organisasi-osis.jpg',
                 'description' => 'Organisasi Siswa Intra Sekolah (OSIS) merupakan wadah aspirasi, pengembangan diri, dan kepemimpinan siswa di lingkungan sekolah. OSIS berperan aktif dalam menyelenggarakan kegiatan sekolah, menampung aspirasi siswa, dan menjadi jembatan antara siswa dengan pihak sekolah.',
                 'vision' => 'Menjadi organisasi siswa yang representative, transformatif, dan berdaya guna bagi seluruh siswa SMKN 4 Bogor.',
                 'mission' => "1. Menampung dan menyalurkan aspirasi siswa secara bersama.\n2. Menyelenggarakan kegiatan positif yang mendukung pengembangan karakter.\n3. Mempererat kekeluargaan dan semangat gotong royong antar siswa.\n4. Mewakili sekolah dalam kegiatan tingkat kota/provinsi.",
@@ -31,6 +32,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'MPK',
                 'slug' => 'mpk',
+                'image' => '/images/organisasi-mpk.jpg',
                 'description' => 'Majelis Perwakilan Kelas (MPK) adalah lembaga legislatif siswa yang bertugas mengawasi kinerja OSIS, menampung aspirasi dari seluruh kelas, dan memastikan hak-hak siswa terpenuhi.',
                 'vision' => 'Menjadi lembaga legislatif siswa yang independen, aspiratif, dan akuntabel.',
                 'mission' => "1. Mengawasi pelaksanaan program kerja OSIS.\n2. Menampung dan menyalurkan aspirasi seluruh kelas.\n3. Menjadi forum diskusi dan musyawarah antar kelas.\n4. Menjaga transparansi dan akuntabilitas organisasi.",
@@ -54,6 +56,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'PMR',
                 'slug' => 'pmr',
+                'image' => '/images/ekskul-pmr.jpg',
                 'description' => 'Palang Merah Remaja (PMR) melatih siswa dalam bidang kesehatan, pertolongan pertama, donor darah, dan kepedulian sosial kepada sesama. Siswa belajar menjadi relawan yang siap membantu di saat situasi darurat.',
                 'schedule' => 'Sabtu, 14:00 - 16:00 WIB',
                 'coach_name' => 'Ibu Siti Aminah, S.Pd',
@@ -69,6 +72,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'Pramuka',
                 'slug' => 'pramuka',
+                'image' => '/images/ekskul-pramuka.jpg',
                 'description' => 'Membangun kemandirian, kedisiplinan, dan kepemimpinan melalui kegiatan kepramukaan serta kecintaan terhadap alam. Anggota Pramuka aktif dalam kegiatan perkemahan, bakti masyarakat, dan penjelajahan.',
                 'schedule' => 'Sabtu, 07:00 - 10:00 WIB',
                 'coach_name' => 'Bapak Hendra Gunawan, S.Pd',
@@ -84,6 +88,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'Rohis',
                 'slug' => 'rohis',
+                'image' => '/images/ekskul-rohis.jpg',
                 'description' => 'Kerohanian Islam (Rohis) sebagai wadah pembinaan akhlak, kegiatan keagamaan, dan penguatan nilai spiritual siswa. Kegiatan meliputi kajian Islam, tadarus, dan bakti sosial keagamaan.',
                 'schedule' => 'Jumat, 14:00 - 15:30 WIB',
                 'coach_name' => 'Bapak Ustadz Ahmad Fauzi',
@@ -98,6 +103,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'Paskibra',
                 'slug' => 'paskibra',
+                'image' => '/images/ekskul-paskibra.jpg',
                 'description' => 'Pasukan Pengibar Bendera (Paskibra) melatih kedisiplinan, baris-berbaris, jiwa kepemimpinan, dan rasa nasionalisme. Anggota Paskibra bertugas mengibarkan bendera pada upacara hari besar nasional dan kegiatan sekolah.',
                 'schedule' => 'Senin & Rabu, 15:30 - 17:00 WIB',
                 'coach_name' => 'Bapak Rudi Hartono',
@@ -113,6 +119,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'Paduan Suara',
                 'slug' => 'paduan-suara',
+                'image' => '/images/ekskul-paduan-suara.jpg',
                 'description' => 'Mengembangkan bakat olah vokal dan harmoni musik untuk tampil di berbagai kegiatan sekolah maupun lomba. Paduan Suara menjadi kebanggaan sekolah dalam acara seremonial dan kompetisi antar sekolah.',
                 'schedule' => 'Selasa, 15:00 - 17:00 WIB',
                 'coach_name' => 'Ibu Rina Marlina, S.Sn',
@@ -127,6 +134,7 @@ class KesiswaanSeeder extends Seeder
             [
                 'name' => 'Band Sekolah',
                 'slug' => 'band-sekolah',
+                'image' => '/images/ekskul-band-sekolah.jpg',
                 'description' => 'Wadah ekspresi musik siswa untuk mengasah kreativitas dan tampil percaya diri di berbagai acara sekolah. Band Sekolah sering tampil di pentas seni, pelepasan siswa, dan acara komunitas.',
                 'schedule' => 'Kamis, 15:00 - 17:00 WIB',
                 'coach_name' => 'Bapak Dedi Kurniawan',

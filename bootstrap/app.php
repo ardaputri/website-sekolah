@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Railway mengakhiri HTTPS di edge lalu meneruskan request sebagai HTTP.
+        // Tanpa mempercayai proxy, Laravel menganggap skema request adalah http
+        // sehingga asset()/url()/Ziggy menghasilkan URL http:// -> browser memblokir
+        // sebagai "Mixed Content" (CSS & JS tidak dimuat, halaman tampil kosong).
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,

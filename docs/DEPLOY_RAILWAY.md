@@ -196,6 +196,7 @@ APP_ENV=production
 APP_DEBUG=false
 APP_KEY=base64:GANTI_DENGAN_HASIL_KEY_GENERATE
 APP_URL=http://localhost
+ASSET_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
 APP_LOCALE=id
 APP_FALLBACK_LOCALE=en
 APP_TIMEZONE=Asia/Jakarta
@@ -230,6 +231,7 @@ PHP_CLI_SERVER_WORKERS=4
 | `APP_DEBUG` | `false` | **Wajib false** di live agar error tak bocor ke publik |
 | `APP_KEY` | hasil `key:generate --show` | Kunci enkripsi session/cookie. **Wajib**, sekali saja |
 | `APP_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` | Diisi di langkah 8 (butuh domain dulu) |
+| `ASSET_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` | *Opsional.* Memaksa URL aset (CSS/JS) memakai HTTPS agar tidak diblokir sebagai *Mixed Content* |
 | `APP_LOCALE` / `APP_FALLBACK_LOCALE` | `id` / `en` | Bahasa aplikasi |
 | `APP_TIMEZONE` | `Asia/Jakarta` | Dipakai `config/app.php` |
 | `APP_MAINTENANCE_DRIVER` | `file` | Driver mode maintenance |
@@ -367,6 +369,7 @@ Setiap perintah perbaikan di bawah sudah diberi label tempat menjalankannya.
 | `/up` OK tapi beranda `500 INTERNAL SERVER ERROR` | Lihat bagian **Diagnosa 500** tepat di bawah tabel ini. |
 | `ERROR  Migration table not found.` (di Console) | Database Railway masih kosong — pre-deploy/migrasi belum jalan. Jalankan `php artisan migrate --force` lalu `php artisan db:seed --force` di ☁️ **Railway Console**. |
 | `The "--force~" option does not exist` | Karakter `~`/`^[[200~` ikut ter-paste dari Console (bracketed paste). Ketik ulang perintahnya manual, tanpa `~`. |
+| Halaman kosong / putih, Console browser penuh **`Mixed Content ... was loaded over HTTPS, but requested an insecure stylesheet/script http://...`** | Laravel mengira request masuk lewat HTTP karena berada di balik proxy Railway. Sudah diperbaiki di `bootstrap/app.php` dengan `$middleware->trustProxies(at: '*')`. Pastikan file itu ter-deploy. Sebagai cadangan, set variabel `ASSET_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}` di Railway. |
 
 🧹 **Perbaikan cepat lewat** ☁️ **Railway Console** (project → service `website-sekolah` → tab **Console**):
 
